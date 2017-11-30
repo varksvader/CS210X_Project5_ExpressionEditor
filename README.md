@@ -8,3 +8,4 @@
 * Upon subsequent clicks, the focus may shift to one of the children of the current focus
 * Create a shadow copy (ghost) that shows where the expression should be
   * Actual expression should follow the mouse
+  * When click is released, the actual expression returns to the same place as the shadow copy
