@@ -1,6 +1,6 @@
 # CS210X_Project5_ExpressionEditor
 
-# Important GUI Features #
+## Important GUI Features ##
 * Terms can be drag-and-dropped only among siblings of the same parent in the expression tree
 * Focus disappears if user clicks outside the expression tree and its immediate children
   * Clicking on an another expression while one is already selected, will just deselect the current expression selected
