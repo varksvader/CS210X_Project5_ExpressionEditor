@@ -35,4 +35,81 @@ public class SimpleExpressionParser implements ExpressionParser {
 		// TODO implement me
 		return null;
 	}
+
+	private boolean parseE(String str) {
+		if (parseA(str) || parseX(str)) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean parseA(String str) {
+		// Check A+M
+		int indexOfPlus = str.indexOf("+");
+		while (indexOfPlus >= 0) {
+			if (parseA(str.substring(0, indexOfPlus)) &&
+					parseM(str.substring(indexOfPlus + 1))) {
+				return true;
+			}
+			indexOfPlus = str.indexOf("+", indexOfPlus + 1);
+		}
+
+		// Check M
+		if (parseM(str)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	private boolean parseM(String str) {
+		// Check M*M
+		int indexOfMult = str.indexOf("*");
+		while (indexOfMult >= 0) {
+			if (parseA(str.substring(0, indexOfMult)) &&
+					parseM(str.substring(indexOfMult + 1))) {
+				return true;
+			}
+			indexOfMult = str.indexOf("*", indexOfMult + 1);
+		}
+
+		// Check X
+		if (parseX(str)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	private boolean parseX(String str) {
+		// Check (E)
+
+
+		// Check L
+		if (parseL(str)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	private boolean parseL(String str) {
+		// Is letter
+		if (str.length() == 1 &&
+				(str.charAt(0) >= 'a' && str.charAt(0) <= 'z')) {
+			return true;
+		}
+
+		// Is number
+		if (str.matches("[0-9]+")) {
+			return true;
+		}
+
+		// Is mult or addition
+		if (str.equals("+") || str.equals("*")) {
+			return true;
+		}
+
+		return false;
+	}
 }
