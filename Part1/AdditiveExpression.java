@@ -1,4 +1,7 @@
 package Part1;
 
-public class AdditiveExpression extends CompoundExpressionImpl {
+public class AdditiveExpression extends SimpleCompoundExpression {
+
+
+
 }

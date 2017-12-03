@@ -29,27 +29,32 @@ public class SimpleExpressionParser implements ExpressionParser {
 		return expression;
 	}
 	
-	protected Expression parseExpression (String str) {
+	private Expression parseExpression (String str) {
 		Expression expression;
+
 		
 		// TODO implement me
 		return null;
 	}
 
-	private boolean parseE(String str) {
-		if (parseA(str) || parseX(str)) {
-			return true;
+	private Expression parseE(String str) {
+		if (parseA(str) != null) {
+			return parseA(str);
+		}
+		if (parseX(str) != null) {
+			return parseX(str);
 		}
 		return false;
 	}
 
-	private boolean parseA(String str) {
+	private Expression parseA(String str) {
 		// Check A+M
 		int indexOfPlus = str.indexOf("+");
 		while (indexOfPlus >= 0) {
 			if (parseA(str.substring(0, indexOfPlus)) &&
 					parseM(str.substring(indexOfPlus + 1))) {
 				return true;
+				// return new AdditiveExpression
 			}
 			indexOfPlus = str.indexOf("+", indexOfPlus + 1);
 		}
@@ -62,7 +67,7 @@ public class SimpleExpressionParser implements ExpressionParser {
 		return false;
 	}
 
-	private boolean parseM(String str) {
+	private Expression parseM(String str) {
 		// Check M*M
 		int indexOfMult = str.indexOf("*");
 		while (indexOfMult >= 0) {
@@ -81,7 +86,7 @@ public class SimpleExpressionParser implements ExpressionParser {
 		return false;
 	}
 
-	private boolean parseX(String str) {
+	private Expression parseX(String str) {
 		// Check (E)
 
 
@@ -93,7 +98,7 @@ public class SimpleExpressionParser implements ExpressionParser {
 		return false;
 	}
 
-	private boolean parseL(String str) {
+	private Expression parseL(String str) {
 		// Is letter
 		if (str.length() == 1 &&
 				(str.charAt(0) >= 'a' && str.charAt(0) <= 'z')) {

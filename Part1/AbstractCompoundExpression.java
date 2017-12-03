@@ -1,22 +1,17 @@
 package Part1;
 
-public class ExpressionImpl implements Expression {
+public abstract class AbstractCompoundExpression implements CompoundExpression {
 
-    private String data;
     private CompoundExpression parent;
-
-    public ExpressionImpl(String data) {
-        this.data = data;
-    }
 
     @Override
     public CompoundExpression getParent() {
-        return null;
+        return parent;
     }
 
     @Override
     public void setParent(CompoundExpression parent) {
-
+        this.parent = parent;
     }
 
     @Override
@@ -33,4 +28,5 @@ public class ExpressionImpl implements Expression {
     public String convertToString(int indentLevel) {
         return null;
     }
+
 }
