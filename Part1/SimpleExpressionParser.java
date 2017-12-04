@@ -30,91 +30,81 @@ public class SimpleExpressionParser implements ExpressionParser {
 	}
 	
 	private Expression parseExpression (String str) {
-		Expression expression;
-
-		
-		// TODO implement me
-		return null;
+		return parseE(str);
 	}
 
 	private Expression parseE(String str) {
 		if (parseA(str) != null) {
 			return parseA(str);
-		}
-		if (parseX(str) != null) {
+		} else if (parseX(str) != null) {
 			return parseX(str);
 		}
-		return false;
+		return null;
 	}
 
 	private Expression parseA(String str) {
-		// Check A+M
-		int indexOfPlus = str.indexOf("+");
-		while (indexOfPlus >= 0) {
-			if (parseA(str.substring(0, indexOfPlus)) &&
-					parseM(str.substring(indexOfPlus + 1))) {
-				return true;
-				// return new AdditiveExpression
+		// Check A + M
+		int idxOfPlus = str.indexOf('+');
+		while (idxOfPlus > 0) { // try each +
+			if (parseA(str.substring(0, idxOfPlus)) != null && parseM(str.substring(idxOfPlus + 1)) != null) {
+				Expression result = new AdditiveExpression("+");
+				((AbstractCompoundExpression) result).addSubexpression(parseA(str.substring(0, idxOfPlus)));
+				((AbstractCompoundExpression) result).addSubexpression(parseM(str.substring(idxOfPlus + 1)));
+				return result;
 			}
-			indexOfPlus = str.indexOf("+", indexOfPlus + 1);
+			idxOfPlus = str.indexOf('+', idxOfPlus + 1);
 		}
-
 		// Check M
-		if (parseM(str)) {
-			return true;
+		if (parseM(str) != null) {
+			return parseM(str);
 		}
-
-		return false;
+		return null;
 	}
 
 	private Expression parseM(String str) {
-		// Check M*M
-		int indexOfMult = str.indexOf("*");
-		while (indexOfMult >= 0) {
-			if (parseA(str.substring(0, indexOfMult)) &&
-					parseM(str.substring(indexOfMult + 1))) {
-				return true;
+		// Check M * M
+		int idxOfTimes = str.indexOf('*');
+		while (idxOfTimes > 0) { // try each *
+			if (parseM(str.substring(0, idxOfTimes)) != null && parseM(str.substring(idxOfTimes + 1)) != null) {
+				Expression result = new MultiplicativeExpression("*");
+				((AbstractCompoundExpression) result).addSubexpression(parseM(str.substring(0, idxOfTimes)));
+				((AbstractCompoundExpression) result).addSubexpression(parseM(str.substring(idxOfTimes + 1)));
+				return result;
 			}
-			indexOfMult = str.indexOf("*", indexOfMult + 1);
+			idxOfTimes = str.indexOf('+', idxOfTimes + 1);
 		}
-
 		// Check X
-		if (parseX(str)) {
-			return true;
+		if (parseX(str) != null) {
+			return parseX(str);
 		}
-
-		return false;
+		return null;
 	}
 
 	private Expression parseX(String str) {
 		// Check (E)
-
-
-		// Check L
-		if (parseL(str)) {
-			return true;
+		if (str.startsWith("(") && str.endsWith(")") && parseE(str.substring(1, str.length() - 1)) != null) {
+			Expression result = new ParentheticalExpression();
+			((AbstractCompoundExpression) result).addSubexpression(parseE(str.substring(1, str.length() - 1)));
+			return result;
 		}
-
-		return false;
+		// Check L
+		if (parseL(str) != null) {
+			return parseL(str);
+		}
+		return null;
 	}
 
 	private Expression parseL(String str) {
-		// Is letter
-		if (str.length() == 1 &&
-				(str.charAt(0) >= 'a' && str.charAt(0) <= 'z')) {
-			return true;
+		// Check [0-9]+
+		try {
+			Integer.parseInt(str);
+			return new LiteralExpression(str);
+		} catch (Exception e) {
 		}
-
-		// Is number
-		if (str.matches("[0-9]+")) {
-			return true;
+		// Check [a-z]
+		if (str.length() == 1 && str.equals(str.toLowerCase())) {
+			return new LiteralExpression(str);
 		}
-
-		// Is mult or addition
-		if (str.equals("+") || str.equals("*")) {
-			return true;
-		}
-
-		return false;
+		return null;
 	}
 }
