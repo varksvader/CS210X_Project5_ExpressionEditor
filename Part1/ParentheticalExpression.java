@@ -1,15 +1,12 @@
 package Part1;
 
+import java.util.LinkedList;
+
 public class ParentheticalExpression extends AbstractCompoundExpression {
 
-    private Expression child;
-
-    public ParentheticalExpression(Expression child) {
-        this.child = child;
-    }
-
-    public void setChild(Expression child) {
-        this.child = child;
+    public ParentheticalExpression() {
+        data = "()";
+        children = new LinkedList<>();
     }
 
 }

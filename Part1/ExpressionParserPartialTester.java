@@ -30,12 +30,27 @@ public class ExpressionParserPartialTester {
 	}
 
 	@Test
+	public void test() throws ExpressionParseException {
+		System.out.println(_parser.parse("a+b", false).convertToString(0));
+	}
+
+	@Test
 	/**
 	 * Verifies that a specific expression is parsed into the correct parse tree.
 	 */
 	public void testExpression1 () throws ExpressionParseException {
 		final String expressionStr = "a+b";
 		final String parseTreeStr = "+\n\ta\n\tb\n";
+		assertEquals(parseTreeStr, _parser.parse(expressionStr, false).convertToString(0).replace('*', '·'));
+	}
+
+	@Test
+	/**
+	 * Verifies that a specific expression is parsed into the correct parse tree.
+	 */
+	public void testExpressionA () throws ExpressionParseException {
+		final String expressionStr = "13*x+4";
+		final String parseTreeStr = "·\n\t13\n\tx\n";
 		assertEquals(parseTreeStr, _parser.parse(expressionStr, false).convertToString(0).replace('*', '·'));
 	}
 
