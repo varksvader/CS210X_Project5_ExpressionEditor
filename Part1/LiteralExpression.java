@@ -25,9 +25,7 @@ public class LiteralExpression implements Expression {
     }
 
     @Override
-    public void flatten() {
-
-    }
+    public void flatten() { }
 
     @Override
     public String convertToString(int indentLevel) {
