@@ -26,23 +26,33 @@ public abstract class AbstractCompoundExpression implements CompoundExpression {
 
     @Override
     public void flatten() {
-        for (int i = 0; i < children.size(); i++) {
-            if (data.equals("*") && children.get(i) instanceof MultiplicativeExpression) {
-                children.addAll(((MultiplicativeExpression) children.get(i)).children);
-                children.remove(children.get(i));
-                if (i > 0) {
-                    i--;
-                }
-            } else if (data.equals("+") && children.get(i) instanceof AdditiveExpression) {
-                children.addAll(((AdditiveExpression) children.get(i)).children);
-                children.remove(children.get(i));
-                if (i > 0) {
-                    i--;
-                }
-            }
-            children.get(i).flatten();
-        }
+    	final ArrayList<Expression> toAdd = new ArrayList<Expression>();
+		for (Expression e : this.children) {
+			e.flatten(); // recursively call flatten on children
+			if (e.getClass() == this.getClass()) { // Check if children is a SimpleCompoundExpression
+				if (this.data.equals(((SimpleCompoundExpression) e).data)) { // Check if operation of children is the same.
+					for (Expression c : ((SimpleCompoundExpression) e).children) {
+						toAdd.add(c); // adds children of children with the same operation to toAdd.
+					}
+				} else {
+					toAdd.add(e); // adds the child to toAdd if the operation is different
+				}
+			} else {
+				toAdd.add(e); // adds the child to toAdd if it is of type literal or parenthetical
+			}
+		}
+		this.clearSubexpression(); // clears subexpressions so that the order will stay the same
+		for (Expression a : toAdd){
+			this.addSubexpression(a); // adds all Expressions in toAdd as children of this
+		}
     }
+    
+    /**
+	 * Clears all subexpressions from this Expression.
+	 */
+	public void clearSubexpression() {
+		children = new ArrayList<Expression>();
+	}
 
     @Override
     public String convertToString(int indentLevel) {
