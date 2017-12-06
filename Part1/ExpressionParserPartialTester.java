@@ -30,6 +30,24 @@ public class ExpressionParserPartialTester {
 	}
 
 	@Test
+	public void testDeepCopy() throws ExpressionParseException {
+		final String expressionStr = "a+b";
+		Expression exp = _parser.parse(expressionStr, false);
+		Expression exp2 = exp.deepCopy();
+		assertNotEquals(exp, exp2); // ensure that the two expressions have different memory addresses
+		assertEquals(exp.convertToString(0), exp2.convertToString(0));
+	}
+
+	@Test
+	public void testDeepCopy2() throws ExpressionParseException {
+		final String expressionStr = "(x+(x)+(x+x)+x)";
+		Expression exp = _parser.parse(expressionStr, false);
+		Expression exp2 = exp.deepCopy();
+		assertNotEquals(exp, exp2); // ensure that the two expressions have different memory addresses
+		assertEquals(exp.convertToString(0), exp2.convertToString(0));
+	}
+
+	@Test
 	/**
 	 * Verifies that a specific expression is parsed into the correct parse tree.
 	 */
