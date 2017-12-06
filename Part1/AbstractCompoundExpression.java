@@ -31,8 +31,8 @@ public abstract class AbstractCompoundExpression implements CompoundExpression {
 		for (Expression e : this.children) {
 			e.flatten(); // recursively call flatten on children
 			if (e.getClass() == this.getClass()) { // Check if children is a SimpleCompoundExpression
-				if (this.data.equals(((SimpleCompoundExpression) e).data)) { // Check if operation of children is the same.
-					for (Expression c : ((SimpleCompoundExpression) e).children) {
+				if (this.data.equals(((AbstractCompoundExpression) e).data) && !data.equals("()")) { // Check if operation of children is the same.
+					for (Expression c : ((AbstractCompoundExpression) e).children) {
 						toAdd.add(c); // adds children of children with the same operation to toAdd.
 					}
 				} else {
@@ -51,7 +51,7 @@ public abstract class AbstractCompoundExpression implements CompoundExpression {
     /**
 	 * Clears all subexpressions from this Expression.
 	 */
-	public void clearSubexpression() {
+	private void clearSubexpression() {
 		children = new ArrayList<Expression>();
 	}
 
@@ -66,9 +66,7 @@ public abstract class AbstractCompoundExpression implements CompoundExpression {
         }
         return str;
     }
-
-
-
+    
     @Override
     public void addSubexpression(Expression subexpression) {
         children.add(subexpression);

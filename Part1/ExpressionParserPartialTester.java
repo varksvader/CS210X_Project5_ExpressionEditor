@@ -35,8 +35,7 @@ public class ExpressionParserPartialTester {
 	 */
 	public void testExpressionA () throws ExpressionParseException {
 		final String expressionStr = "10*x*z+2*(15+y)";
-		final String parseTreeStr = "+\n\t*\n\t\t10\n\t\tx\n\t\tz\n\t*\n\t\t2\n\t\t" +
-				"()\n\t\t\t+\n\t\t\t\t15\n\t\t\t\ty\n";
+		final String parseTreeStr = "+\n\t*\n\t\t10\n\t\tx\n\t\tz\n\t*\n\t\t2\n\t\t()\n\t\t\t+\n\t\t\t\t15\n\t\t\t\ty\n";
 		assertEquals(parseTreeStr, _parser.parse(expressionStr, false).convertToString(0));
 	}
 
@@ -77,6 +76,27 @@ public class ExpressionParserPartialTester {
 	public void testExpressionAndFlatten1 () throws ExpressionParseException {
 		final String expressionStr = "1+2+3";
 		final String parseTreeStr = "+\n\t1\n\t2\n\t3\n";
+		assertEquals(parseTreeStr, _parser.parse(expressionStr, false).convertToString(0).replace('*', '·'));
+	}
+
+	@Test
+	public void testParens() throws ExpressionParseException {
+		final String expressionStr = "1+((2+3))";
+		final String parseTreeStr = "+\n\t1\n\t()\n\t\t()\n\t\t\t+\n\t\t\t\t2\n\t\t\t\t3\n";
+		assertEquals(parseTreeStr, _parser.parse(expressionStr, false).convertToString(0).replace('*', '·'));
+	}
+
+	@Test
+	public void testParens2() throws ExpressionParseException {
+		final String expressionStr = "((a+b))";
+		final String parseTreeStr = "()\n\t()\n\t\t+\n\t\t\ta\n\t\t\tb\n";
+		assertEquals(parseTreeStr, _parser.parse(expressionStr, false).convertToString(0).replace('*', '·'));
+	}
+
+	@Test
+	public void testParens3() throws ExpressionParseException {
+		final String expressionStr = "(a+b)";
+		final String parseTreeStr = "()\n\t+\n\t\ta\n\t\tb\n";
 		assertEquals(parseTreeStr, _parser.parse(expressionStr, false).convertToString(0).replace('*', '·'));
 	}
 
