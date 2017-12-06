@@ -1,5 +1,6 @@
 package Part1;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -56,7 +57,6 @@ public abstract class AbstractCompoundExpression implements CompoundExpression {
 
     @Override
     public String convertToString(int indentLevel) {
-        System.out.println(children.size());
         StringBuffer buf = new StringBuffer("");
         Expression.indent(buf, indentLevel);
 
@@ -74,7 +74,5 @@ public abstract class AbstractCompoundExpression implements CompoundExpression {
         children.add(subexpression);
 	subexpression.setParent(this);
     }
-
-
 
 }

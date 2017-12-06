@@ -30,8 +30,14 @@ public class ExpressionParserPartialTester {
 	}
 
 	@Test
-	public void test() throws ExpressionParseException {
-		System.out.println(_parser.parse("a+b", false).convertToString(0));
+	/**
+	 * Verifies that a specific expression is parsed into the correct parse tree.
+	 */
+	public void testExpressionA () throws ExpressionParseException {
+		final String expressionStr = "10*x*z+2*(15+y)";
+		final String parseTreeStr = "+\n\t*\n\t\t10\n\t\tx\n\t\tz\n\t*\n\t\t2\n\t\t" +
+				"()\n\t\t\t+\n\t\t\t\t15\n\t\t\t\ty\n";
+		assertEquals(parseTreeStr, _parser.parse(expressionStr, false).convertToString(0));
 	}
 
 	@Test
