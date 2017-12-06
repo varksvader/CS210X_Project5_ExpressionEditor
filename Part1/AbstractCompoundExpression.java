@@ -1,70 +1,90 @@
 package Part1;
-
 import java.util.*;
 
+/**
+ * CS 210X 2017 B-term (Sinha, Backe) 
+ * Expressions that have more than one term (also know as expressions other than literal expressions)
+ */
 public abstract class AbstractCompoundExpression implements CompoundExpression {
 
-    private CompoundExpression parent;
-    String operation;
-    List<Expression> children = new LinkedList<>();
+    private CompoundExpression _parent;
+    protected String _operator;
+    protected List<Expression> _children;
+    
+    // Constructor
+    public AbstractCompoundExpression() {
+    	_children = new LinkedList<Expression>();
+    }
 
+    /**
+	 * Returns the expression's parent.
+	 * @return the expression's parent
+	 */
     @Override
     public CompoundExpression getParent() {
-        return parent;
+        return _parent;
     }
 
+    /**
+	 * Sets the parent be the specified expression.
+	 * @param parent the CompoundExpression that should be the parent of the target object
+	 */
     @Override
     public void setParent(CompoundExpression parent) {
-        this.parent = parent;
+        _parent = parent;
     }
 
+    /**
+	 * Creates and returns a deep copy of the expression.
+	 * The entire tree rooted at the target node is copied, i.e.,
+	 * the copied Expression is as deep as possible.
+	 * @return the deep copy
+	 */
     @Override
     public abstract Expression deepCopy();
 
+    /**
+	 * Recursively flattens the expression as much as possible
+	 * throughout the entire tree. Specifically, in every multiplicative
+	 * or additive expression x whose first or last
+	 * child c is of the same type as x, the children of c will be added to x, and
+	 * c itself will be removed. This method modifies the expression itself.
+	 */
     @Override
-    public void flatten() {
-    	final ArrayList<Expression> toAdd = new ArrayList<Expression>();
-		for (Expression e : this.children) {
-			e.flatten(); // recursively call flatten on children
-			if (e.getClass() == this.getClass()) { // Check if children is a SimpleCompoundExpression
-				if (this.operation.equals(((SimpleCompoundExpression) e).operation)) { // Check if operation of
-																							// children is the same.
-					for (Expression c : ((SimpleCompoundExpression) e).children) {
-						toAdd.add(c); // adds children of children with the same operation to toAdd.
-					}
-				} else {
-					toAdd.add(e); // adds the child to toAdd if the operation is different
-				}
-			} else {
-				toAdd.add(e); // adds the child to toAdd if it is of type literal or parenthetical
-			}
-		}
-		this.clearSubexpression(); // clears subexpressions so that the order will stay the same
-		for (Expression a : toAdd) {
-			this.addSubexpression(a); // adds all Expressions in toAdd as children of this
-		}
-    }
-    
-    public void clearSubexpression() {
-		children = new ArrayList<Expression>();
-	}
+    public abstract void flatten();
 
+    /**
+	 * Creates a String representation by recursively printing out (using indentation) the
+	 * tree represented by this expression, starting at the specified indentation level.
+	 * @param indentLevel the indentation level (number of tabs from the left margin) at which to start
+	 * @return a String representation of the expression tree.
+	 */
     @Override
     public String convertToString(int indentLevel) {
-        System.out.println(children.size());
-        StringBuffer buf = new StringBuffer("");
+        final StringBuffer buf = new StringBuffer("");
         Expression.indent(buf, indentLevel);
-
-        String str = buf.toString() + operation + "\n";
-        for (Expression child : children) {
+        String str = buf.toString() + _operator + "\n";
+        for (Expression child : _children) {
             str += child.convertToString(indentLevel + 1);
         }
         return str;
     }
 
+    /**
+	 * Adds the specified expression as a child.
+	 * @param subexpression the child expression to add
+	 */
     @Override
     public void addSubexpression(Expression subexpression) {
-        children.add(subexpression);
+        _children.add(subexpression);
+        subexpression.setParent(this);
     }
-
+    
+    /**
+     * Helper method for flatten
+     * Resets the children of the specified expression to be empty
+     */
+    protected void clearSubexpression() {
+		_children = new ArrayList<Expression>();
+	}
 }
