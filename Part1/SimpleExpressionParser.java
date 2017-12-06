@@ -1,6 +1,8 @@
 package Part1;
 /**
- * Starter code to implement an ExpressionParser. Your parser methods should use the following grammar:
+ * CS 210X 2017 B-term (Sinha, Backe)
+ * Parser for expressions
+ * Parser methods use the following grammar:
  * E := A | X
  * A := A+M | M
  * M := M*M | X
@@ -29,10 +31,22 @@ public class SimpleExpressionParser implements ExpressionParser {
 		return expression;
 	}
 	
+	/**
+	 * Returns the expression parsed into a tree using the grammar rules at
+	 * the top of the file
+	 * @param str the expression
+	 * @return the expression parsed into a tree
+	 */
 	private Expression parseExpression(String str) {
 		return parseE(str);
 	}
 
+	/**
+	 * Returns the expression parsed into a tree using the rule:
+	 * E := A | X
+	 * @param str the expression
+	 * @return the expression parsed into a tree
+	 */
 	private Expression parseE(String str) {
 		if (parseA(str) != null) {
 			return parseA(str);
@@ -42,12 +56,18 @@ public class SimpleExpressionParser implements ExpressionParser {
 		return null;
 	}
 
+	/**
+	 * Returns the additive expression parsed into a tree using the rule:
+	 * A := A+M | M
+	 * @param str the additive expression
+	 * @return the additive expression parsed into a tree
+	 */
 	private Expression parseA(String str) {
-		// Check A + M
+		// Check A+M
 		int idxOfPlus = str.indexOf('+');
 		while (idxOfPlus > 0) { // try each +
 			if (parseA(str.substring(0, idxOfPlus)) != null && parseM(str.substring(idxOfPlus + 1)) != null) {
-				Expression result = new AdditiveExpression();
+				Expression result = new SimpleCompoundExpression("+");
 				((AbstractCompoundExpression) result).addSubexpression(parseA(str.substring(0, idxOfPlus)));
 				((AbstractCompoundExpression) result).addSubexpression(parseM(str.substring(idxOfPlus + 1)));
 				return result;
@@ -61,12 +81,18 @@ public class SimpleExpressionParser implements ExpressionParser {
 		return null;
 	}
 
+	/**
+	 * Returns the multiplicative expression parsed into a tree using the rule:
+	 * M := M*M | X
+	 * @param str the multiplicative expression
+	 * @return the multiplicative expression parsed into a tree
+	 */
 	private Expression parseM(String str) {
-		// Check M * M
+		// Check M*M
 		int idxOfTimes = str.indexOf('*');
 		while (idxOfTimes > 0) { // try each *
 			if (parseM(str.substring(0, idxOfTimes)) != null && parseM(str.substring(idxOfTimes + 1)) != null) {
-				Expression result = new MultiplicativeExpression();
+				Expression result = new SimpleCompoundExpression("*");
 				((AbstractCompoundExpression) result).addSubexpression(parseM(str.substring(0, idxOfTimes)));
 				((AbstractCompoundExpression) result).addSubexpression(parseM(str.substring(idxOfTimes + 1)));
 				return result;
@@ -80,6 +106,12 @@ public class SimpleExpressionParser implements ExpressionParser {
 		return null;
 	}
 
+	/**
+	 * Returns the parenthetical or literal expression parsed into a tree using the rule:
+	 * X := (E) | L
+	 * @param str the parenthetical or literal expression
+	 * @return the parenthetical or literal expression parsed into a tree
+	 */
 	private Expression parseX(String str) {
 		// Check (E)
 		if (str.startsWith("(") && str.endsWith(")") && parseE(str.substring(1, str.length() - 1)) != null) {
@@ -94,13 +126,19 @@ public class SimpleExpressionParser implements ExpressionParser {
 		return null;
 	}
 
+	/**
+	 * Returns the literal expression parsed into a tree using the rule:
+	 * L := [0-9]+ | [a-z]
+	 * @param str the literal expression
+	 * @return the literal expression parsed into a tree
+	 */
 	private Expression parseL(String str) {
 		// Check [0-9]+
 		if (str.matches("[0-9]+")) {
 			return new LiteralExpression(str);
 		}
 		// Check [a-z]
-		if (str.length() == 1 && str.matches("[a-zA-Z]")) {
+		if (str.length() == 1 && str.matches("[a-z]")) {
 			return new LiteralExpression(str);
 		}
 		return null;
