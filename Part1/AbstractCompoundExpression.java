@@ -72,6 +72,7 @@ public abstract class AbstractCompoundExpression implements CompoundExpression {
     @Override
     public void addSubexpression(Expression subexpression) {
         children.add(subexpression);
+	subexpression.setParent(this);
     }
 
 
