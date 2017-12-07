@@ -1,4 +1,3 @@
-package Part1;
 interface ExpressionParser {
 	/**
 	 * Attempts to create an expression tree -- flattened as much as possible -- from the specified String.

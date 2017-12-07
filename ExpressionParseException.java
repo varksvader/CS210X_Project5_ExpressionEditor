@@ -1,4 +1,3 @@
-package Part1;
 /**
  * Exception thrown when a ExpressionParser fails to parse a specified string.
  */

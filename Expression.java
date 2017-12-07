@@ -1,15 +1,35 @@
-package Part1;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.Node;
+
 interface Expression {
+	/**
+	 * Border for showing a focused expression
+	 */
+	public static final Border RED_BORDER = new Border(
+	  new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)
+	);
+
+	/**
+	 * Border for showing a non-focused expression
+	 */
+	public static final Border NO_BORDER = null;
+
+	/**
+	 * Color used for a "ghosted" expression
+	 */
+	public static final Color GHOST_COLOR = Color.LIGHTGREY;
+
 	/**
 	 * Returns the expression's parent.
 	 * @return the expression's parent
 	 */
 	CompoundExpression getParent ();
-
+        
 	/**
-	 * Sets the parent be the specified expression.
-	 * @param parent the CompoundExpression that should be the parent of the target object
-	 */
+         * Sets the parent be the specified expression.
+         * @param parent the CompoundExpression that should be the parent of the target object
+         */
 	void setParent (CompoundExpression parent);
 
 	/**
@@ -19,6 +39,13 @@ interface Expression {
 	 * @return the deep copy
 	 */
 	Expression deepCopy ();
+
+
+	/**
+	 * Returns the JavaFX node associated with this expression.
+	 * @return the JavaFX node associated with this expression.
+	 */
+	Node getNode ();
 
 	/**
 	 * Recursively flattens the expression as much as possible

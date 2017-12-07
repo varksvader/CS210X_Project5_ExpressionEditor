@@ -1,5 +1,3 @@
-package Part1;
-
 /**
  * CS 210X 2017 B-term (Sinha, Backe) 
  * Expressions that are literals (also known as numbers [0-9]+ and variables [a-z])
@@ -9,7 +7,7 @@ public class LiteralExpression implements Expression {
 	private final String _value;
 	private CompoundExpression _parent;
 
-	//Constructor
+	// Constructor
 	public LiteralExpression(String value) {
 		_value = value;
 	}
