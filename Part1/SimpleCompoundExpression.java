@@ -7,8 +7,6 @@ import java.util.*;
  */
 public class SimpleCompoundExpression extends AbstractCompoundExpression {
 
-	//private final String _operator;
-
 	//Constructor
 	public SimpleCompoundExpression(String operator) {
 		super();
@@ -39,7 +37,7 @@ public class SimpleCompoundExpression extends AbstractCompoundExpression {
 	 */
 	@Override
 	public void flatten() {
-		final List<Expression> toAdd = new ArrayList<Expression>();
+		final ArrayList<Expression> toAdd = new ArrayList<Expression>();
 		for (Expression e : this._children) {
 			e.flatten(); // recursively call flatten on children
 			if (e.getClass() == this.getClass()) { // Check if children is a SimpleCompoundExpression
