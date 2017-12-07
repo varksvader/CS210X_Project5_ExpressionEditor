@@ -1,3 +1,5 @@
+import javafx.scene.Node;
+
 /**
  * CS 210X 2017 B-term (Sinha, Backe) 
  * Expressions that are literals (also known as numbers [0-9]+ and variables [a-z])
@@ -40,16 +42,16 @@ public class LiteralExpression implements Expression {
 	public Expression deepCopy() {
 		return new LiteralExpression(_value);
 	}
-    
-    /**
-     * Returns the JavaFX node associated with this expression.
-     * @return the JavaFX node associated with this expression.
-     */
-    @Override
-    public Node getNode() {
-        // TODO Auto-generated method stub
-        return null;
-    }
+
+	/**
+	 * Returns the JavaFX node associated with this expression.
+	 * @return the JavaFX node associated with this expression.
+	 */
+	@Override
+	public Node getNode() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	/**
 	 * Recursively flattens the expression as much as possible
