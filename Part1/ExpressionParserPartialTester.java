@@ -119,12 +119,39 @@ public class ExpressionParserPartialTester {
 	}
 
 	@Test
+	public void testParens4() throws ExpressionParseException {
+		final String expressionStr = "(30000006+(a+b))";
+		final String parseTreeStr = "()\n\t+\n\t\t30000006\n\t\t+\n\t\t\ta\n\t\t\tb\n";
+		assertEquals(parseTreeStr, _parser.parse(expressionStr, false).convertToString(0).replace('*', '·'));
+	}
+
+	@Test
 	/**
 	 * Verifies that a specific expression is parsed into the correct parse tree.
 	 */
 	public void testExpressionAndFlatten2 () throws ExpressionParseException {
 		final String expressionStr = "(x+(x)+(x+x)+x)";
 		final String parseTreeStr = "()\n\t+\n\t\tx\n\t\t()\n\t\t\tx\n\t\t()\n\t\t\t+\n\t\t\t\tx\n\t\t\t\tx\n\t\tx\n";
+		assertEquals(parseTreeStr, _parser.parse(expressionStr, false).convertToString(0).replace('*', '·'));
+	}
+
+	@Test
+	/**
+	 * Verifies that a specific expression is parsed into the correct parse tree.
+	 */
+	public void testExpressionAndFlatten3 () throws ExpressionParseException {
+		final String expressionStr = "2";
+		final String parseTreeStr = "2\n";
+		assertEquals(parseTreeStr, _parser.parse(expressionStr, false).convertToString(0).replace('*', '·'));
+	}
+
+	@Test
+	/**
+	 * Verifies that a specific expression is parsed into the correct parse tree.
+	 */
+	public void testExpressionAndFlatten4 () throws ExpressionParseException {
+		final String expressionStr = "(2)";
+		final String parseTreeStr = "()\n\t2\n";
 		assertEquals(parseTreeStr, _parser.parse(expressionStr, false).convertToString(0).replace('*', '·'));
 	}
 
@@ -152,6 +179,42 @@ public class ExpressionParserPartialTester {
 	 */
 	public void testException3 () throws ExpressionParseException {
 		final String expressionStr = "()()";
+		_parser.parse(expressionStr, false);
+	}
+
+	@Test(expected = ExpressionParseException.class)
+	/**
+	 * Verifies that a specific expression is parsed into the correct parse tree.
+	 */
+	public void testException4 () throws ExpressionParseException {
+		final String expressionStr = "2*+3";
+		_parser.parse(expressionStr, false);
+	}
+
+	@Test(expected = ExpressionParseException.class)
+	/**
+	 * Verifies that a specific expression is parsed into the correct parse tree.
+	 */
+	public void testException5 () throws ExpressionParseException {
+		final String expressionStr = "2++3";
+		_parser.parse(expressionStr, false);
+	}
+
+	@Test(expected = ExpressionParseException.class)
+	/**
+	 * Verifies that a specific expression is parsed into the correct parse tree.
+	 */
+	public void testException6 () throws ExpressionParseException {
+		final String expressionStr = "2-3";
+		_parser.parse(expressionStr, false);
+	}
+
+	@Test(expected = ExpressionParseException.class)
+	/**
+	 * Verifies that a specific expression is parsed into the correct parse tree.
+	 */
+	public void testException7 () throws ExpressionParseException {
+		final String expressionStr = "(2+3";
 		_parser.parse(expressionStr, false);
 	}
 }
