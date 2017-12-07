@@ -40,6 +40,16 @@ public class LiteralExpression implements Expression {
 	public Expression deepCopy() {
 		return new LiteralExpression(_value);
 	}
+    
+    /**
+     * Returns the JavaFX node associated with this expression.
+     * @return the JavaFX node associated with this expression.
+     */
+    @Override
+    public Node getNode() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 	/**
 	 * Recursively flattens the expression as much as possible

@@ -49,6 +49,16 @@ public class CompoundExpressionImpl implements CompoundExpression {
 		}
 		return copy;
 	}
+    
+    /**
+     * Returns the JavaFX node associated with this expression.
+     * @return the JavaFX node associated with this expression.
+     */
+    @Override
+    public Node getNode() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 	/**
 	 * Recursively flattens the expression as much as possible
