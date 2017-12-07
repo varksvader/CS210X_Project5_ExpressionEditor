@@ -5,15 +5,14 @@ import java.util.*;
  * CS 210X 2017 B-term (Sinha, Backe) 
  * Expressions that have more than one term (also know as expressions other than literal expressions)
  */
-public class AbstractCompoundExpression implements CompoundExpression {
+public abstract class AbstractCompoundExpression implements CompoundExpression {
 
 	private CompoundExpression _parent;
 	protected String _operator;
 	protected List<Expression> _children;
 
 	// Constructor
-	public AbstractCompoundExpression(String operator) {
-		_operator = operator;
+	public AbstractCompoundExpression() {
 		_children = new LinkedList<Expression>();
 	}
 
@@ -42,13 +41,7 @@ public class AbstractCompoundExpression implements CompoundExpression {
 	 * @return the deep copy
 	 */
 	@Override
-	public Expression deepCopy() {
-		final Expression copy = new AbstractCompoundExpression(_operator);
-		for (Expression e : this._children) {
-			((AbstractCompoundExpression) copy).addSubexpression(e.deepCopy());
-		}
-		return copy;
-	}
+	public abstract Expression deepCopy();
 
 	/**
 	 * Recursively flattens the expression as much as possible
@@ -58,34 +51,7 @@ public class AbstractCompoundExpression implements CompoundExpression {
 	 * c itself will be removed. This method modifies the expression itself.
 	 */
 	@Override
-	public void flatten() {
-		if (_operator.equals("()")) {
-			for (Expression e : this._children) {
-				e.flatten(); // recursively call flatten on children
-			}
-		} else {
-			final ArrayList<Expression> toAdd = new ArrayList<Expression>();
-			for (Expression e : this._children) {
-				e.flatten(); // recursively call flatten on children
-				if (e.getClass() == this.getClass()) { // Check if children is a SimpleCompoundExpression
-					if (this._operator.equals(((AbstractCompoundExpression) e)._operator)) { // Check if operation of
-						// children is the same.
-						for (Expression c : ((AbstractCompoundExpression) e)._children) {
-							toAdd.add(c); // adds children of children with the same operation to toAdd.
-						}
-					} else {
-						toAdd.add(e); // adds the child to toAdd if the operation is different
-					}
-				} else {
-					toAdd.add(e); // adds the child to toAdd if it is of type literal or parenthetical
-				}
-			} 
-			this.clearSubexpression(); // clears subexpressions so that the order will stay the same
-			for (Expression a : toAdd) {
-				this.addSubexpression(a); // adds all Expressions in toAdd as children of this
-			} 
-		}
-	}
+	public abstract void flatten();
 
 	/**
 	 * Creates a String representation by recursively printing out (using indentation) the
