@@ -13,6 +13,7 @@ public class CompoundExpressionImpl implements CompoundExpression {
 
 	// Constructor
 	public CompoundExpressionImpl(String operator) {
+		_parent = null;
 		_operator = operator;
 		_children = new LinkedList<Expression>();
 	}
