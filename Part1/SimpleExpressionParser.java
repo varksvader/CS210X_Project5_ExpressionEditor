@@ -67,9 +67,9 @@ public class SimpleExpressionParser implements ExpressionParser {
 		int idxOfPlus = str.indexOf('+');
 		while (idxOfPlus > 0) { // try each +
 			if (parseA(str.substring(0, idxOfPlus)) != null && parseM(str.substring(idxOfPlus + 1)) != null) {
-				Expression result = new AbstractCompoundExpression("+");
-				((AbstractCompoundExpression) result).addSubexpression(parseA(str.substring(0, idxOfPlus)));
-				((AbstractCompoundExpression) result).addSubexpression(parseM(str.substring(idxOfPlus + 1)));
+				Expression result = new CompoundExpressionImpl("+");
+				((CompoundExpressionImpl) result).addSubexpression(parseA(str.substring(0, idxOfPlus)));
+				((CompoundExpressionImpl) result).addSubexpression(parseM(str.substring(idxOfPlus + 1)));
 				return result;
 			}
 			idxOfPlus = str.indexOf('+', idxOfPlus + 1);
@@ -92,9 +92,9 @@ public class SimpleExpressionParser implements ExpressionParser {
 		int idxOfTimes = str.indexOf('*');
 		while (idxOfTimes > 0) { // try each *
 			if (parseM(str.substring(0, idxOfTimes)) != null && parseM(str.substring(idxOfTimes + 1)) != null) {
-				Expression result = new AbstractCompoundExpression("*");
-				((AbstractCompoundExpression) result).addSubexpression(parseM(str.substring(0, idxOfTimes)));
-				((AbstractCompoundExpression) result).addSubexpression(parseM(str.substring(idxOfTimes + 1)));
+				Expression result = new CompoundExpressionImpl("*");
+				((CompoundExpressionImpl) result).addSubexpression(parseM(str.substring(0, idxOfTimes)));
+				((CompoundExpressionImpl) result).addSubexpression(parseM(str.substring(idxOfTimes + 1)));
 				return result;
 			}
 			idxOfTimes = str.indexOf('+', idxOfTimes + 1);
@@ -115,8 +115,8 @@ public class SimpleExpressionParser implements ExpressionParser {
 	private Expression parseX(String str) {
 		// Check (E)
 		if (str.startsWith("(") && str.endsWith(")") && parseE(str.substring(1, str.length() - 1)) != null) {
-			Expression result = new AbstractCompoundExpression("()");
-			((AbstractCompoundExpression) result).addSubexpression(parseE(str.substring(1, str.length() - 1)));
+			Expression result = new CompoundExpressionImpl("()");
+			((CompoundExpressionImpl) result).addSubexpression(parseE(str.substring(1, str.length() - 1)));
 			return result;
 		}
 		// Check L

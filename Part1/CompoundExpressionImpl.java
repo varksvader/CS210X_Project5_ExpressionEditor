@@ -5,16 +5,17 @@ import java.util.*;
  * CS 210X 2017 B-term (Sinha, Backe) 
  * Expressions that have more than one term (also know as expressions other than literal expressions)
  */
-public class AbstractCompoundExpression implements CompoundExpression {
+public class CompoundExpressionImpl implements CompoundExpression {
 
 	private CompoundExpression _parent;
-	protected String _operator;
-	protected List<Expression> _children;
+	private String _operator;
+	private List<Expression> _children;
 
 	// Constructor
-	public AbstractCompoundExpression(String operator) {
+	public CompoundExpressionImpl(String operator) {
 		_operator = operator;
 		_children = new LinkedList<Expression>();
+		_parent = null;
 	}
 
 	/**
@@ -43,9 +44,9 @@ public class AbstractCompoundExpression implements CompoundExpression {
 	 */
 	@Override
 	public Expression deepCopy() {
-		final Expression copy = new AbstractCompoundExpression(_operator);
+		final Expression copy = new CompoundExpressionImpl(_operator);
 		for (Expression e : this._children) {
-			((AbstractCompoundExpression) copy).addSubexpression(e.deepCopy());
+			((CompoundExpressionImpl) copy).addSubexpression(e.deepCopy());
 		}
 		return copy;
 	}
@@ -68,9 +69,9 @@ public class AbstractCompoundExpression implements CompoundExpression {
 			for (Expression e : this._children) {
 				e.flatten(); // recursively call flatten on children
 				if (e.getClass() == this.getClass()) { // Check if children is a SimpleCompoundExpression
-					if (this._operator.equals(((AbstractCompoundExpression) e)._operator)) { // Check if operation of
+					if (this._operator.equals(((CompoundExpressionImpl) e)._operator)) { // Check if operation of
 						// children is the same.
-						for (Expression c : ((AbstractCompoundExpression) e)._children) {
+						for (Expression c : ((CompoundExpressionImpl) e)._children) {
 							toAdd.add(c); // adds children of children with the same operation to toAdd.
 						}
 					} else {
