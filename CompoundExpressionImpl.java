@@ -1,5 +1,7 @@
 import java.util.*;
 
+import javafx.scene.Node;
+
 /**
  * CS 210X 2017 B-term (Sinha, Backe) 
  * Expressions that have more than one term (also know as expressions other than literal expressions)
@@ -49,16 +51,16 @@ public class CompoundExpressionImpl implements CompoundExpression {
 		}
 		return copy;
 	}
-    
-    /**
-     * Returns the JavaFX node associated with this expression.
-     * @return the JavaFX node associated with this expression.
-     */
-    @Override
-    public Node getNode() {
-        // TODO Auto-generated method stub
-        return null;
-    }
+
+	/**
+	 * Returns the JavaFX node associated with this expression.
+	 * @return the JavaFX node associated with this expression.
+	 */
+	@Override
+	public Node getNode() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	/**
 	 * Recursively flattens the expression as much as possible
@@ -78,7 +80,7 @@ public class CompoundExpressionImpl implements CompoundExpression {
 			final ArrayList<Expression> toAdd = new ArrayList<Expression>();
 			for (Expression e : this._children) {
 				e.flatten(); // recursively call flatten on children
-				// Check if children is a SimpleCompoundExpression
+				// Check if children is a CompoundExpressionImpl
 				if (e.getClass() == this.getClass()) {
 					// Check if operation of children is the same.
 					if (this._operator.equals(((CompoundExpressionImpl) e)._operator)) {
