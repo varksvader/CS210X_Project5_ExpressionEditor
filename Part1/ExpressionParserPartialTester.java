@@ -121,7 +121,7 @@ public class ExpressionParserPartialTester {
 	@Test
 	public void testParens4() throws ExpressionParseException {
 		final String expressionStr = "(30000006+(a+b))";
-		final String parseTreeStr = "()\n\t+\n\t\t30000006\n\t\t+\n\t\t\ta\n\t\t\tb\n";
+		final String parseTreeStr = "()\n\t+\n\t\t30000006\n\t\t()\n\t\t\t+\n\t\t\t\ta\n\t\t\t\tb\n";
 		assertEquals(parseTreeStr, _parser.parse(expressionStr, false).convertToString(0).replace('*', '·'));
 	}
 
