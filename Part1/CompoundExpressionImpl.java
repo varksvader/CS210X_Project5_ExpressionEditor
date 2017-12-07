@@ -15,7 +15,6 @@ public class CompoundExpressionImpl implements CompoundExpression {
 	public CompoundExpressionImpl(String operator) {
 		_operator = operator;
 		_children = new LinkedList<Expression>();
-		_parent = null;
 	}
 
 	/**
@@ -60,30 +59,33 @@ public class CompoundExpressionImpl implements CompoundExpression {
 	 */
 	@Override
 	public void flatten() {
+		// When operator is ()
 		if (_operator.equals("()")) {
 			for (Expression e : this._children) {
 				e.flatten(); // recursively call flatten on children
 			}
-		} else {
+		} else { // When operator is * or +
 			final ArrayList<Expression> toAdd = new ArrayList<Expression>();
 			for (Expression e : this._children) {
 				e.flatten(); // recursively call flatten on children
-				if (e.getClass() == this.getClass()) { // Check if children is a SimpleCompoundExpression
-					if (this._operator.equals(((CompoundExpressionImpl) e)._operator)) { // Check if operation of
-						// children is the same.
+				// Check if children is a SimpleCompoundExpression
+				if (e.getClass() == this.getClass()) {
+					// Check if operation of children is the same.
+					if (this._operator.equals(((CompoundExpressionImpl) e)._operator)) {
 						for (Expression c : ((CompoundExpressionImpl) e)._children) {
-							toAdd.add(c); // adds children of children with the same operation to toAdd.
+							// adds children of children with the same operation to toAdd
+							toAdd.add(c);
 						}
-					} else {
-						toAdd.add(e); // adds the child to toAdd if the operation is different
+					} else { // adds the child to toAdd if the operation is different
+						toAdd.add(e);
 					}
-				} else {
-					toAdd.add(e); // adds the child to toAdd if it is of type literal or parenthetical
+				} else { // adds the child to toAdd if it is of type literal or parenthetical
+					toAdd.add(e);
 				}
 			} 
 			this.clearSubexpression(); // clears subexpressions so that the order will stay the same
-			for (Expression a : toAdd) {
-				this.addSubexpression(a); // adds all Expressions in toAdd as children of this
+			for (Expression a : toAdd) { // adds all Expressions in toAdd as children of this
+				this.addSubexpression(a);
 			} 
 		}
 	}
