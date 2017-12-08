@@ -1,5 +1,4 @@
 import java.util.*;
-
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -12,7 +11,7 @@ import javafx.scene.layout.HBox;
 public class CompoundExpressionImpl implements CompoundExpression {
 
 	private CompoundExpression _parent;
-	private String _operator;
+	private final String _operator;
 	private List<Expression> _children;
 
 	// Constructor

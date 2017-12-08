@@ -9,7 +9,7 @@ import javafx.scene.image.ImageView;
  */
 public class LiteralExpression implements Expression {
 
-	final String _value;
+	protected final String _value;
 	private CompoundExpression _parent;
 
 	// Constructor
