@@ -68,9 +68,13 @@ public class SimpleExpressionParser implements ExpressionParser {
 		int idxOfPlus = str.indexOf('+');
 		while (idxOfPlus > 0) { // try each +
 			if (parseA(str.substring(0, idxOfPlus)) != null && parseM(str.substring(idxOfPlus + 1)) != null) {
-				final Expression result = new CompoundExpressionImpl("+");
-				((CompoundExpression) result).addSubexpression(parseA(str.substring(0, idxOfPlus)));
-				((CompoundExpression) result).addSubexpression(parseM(str.substring(idxOfPlus + 1)));
+				final CompoundExpression result = new CompoundExpressionImpl("+");
+				final Expression child1 = parseA(str.substring(0, idxOfPlus));
+				child1.setParent(result);
+				result.addSubexpression(child1);
+				final Expression child2 = parseM(str.substring(idxOfPlus + 1));
+				child2.setParent(result);
+				result.addSubexpression(child2);
 				return result;
 			}
 			idxOfPlus = str.indexOf('+', idxOfPlus + 1);
@@ -93,9 +97,13 @@ public class SimpleExpressionParser implements ExpressionParser {
 		int idxOfTimes = str.indexOf('*');
 		while (idxOfTimes > 0) { // try each *
 			if (parseM(str.substring(0, idxOfTimes)) != null && parseM(str.substring(idxOfTimes + 1)) != null) {
-				final Expression result = new CompoundExpressionImpl("*");
-				((CompoundExpression) result).addSubexpression(parseM(str.substring(0, idxOfTimes)));
-				((CompoundExpression) result).addSubexpression(parseM(str.substring(idxOfTimes + 1)));
+				final CompoundExpression result = new CompoundExpressionImpl("*");
+				final Expression child1 = parseM(str.substring(0, idxOfTimes));
+				child1.setParent(result);
+				result.addSubexpression(child1);
+				final Expression child2 = parseM(str.substring(idxOfTimes + 1));
+				child2.setParent(result);
+				result.addSubexpression(child2);
 				return result;
 			}
 			idxOfTimes = str.indexOf('*', idxOfTimes + 1);
@@ -116,8 +124,10 @@ public class SimpleExpressionParser implements ExpressionParser {
 	private Expression parseX(String str) {
 		// try (E)
 		if (str.startsWith("(") && str.endsWith(")") && parseE(str.substring(1, str.length() - 1)) != null) {
-			final Expression result = new CompoundExpressionImpl("()");
-			((CompoundExpression) result).addSubexpression(parseE(str.substring(1, str.length() - 1)));
+			final CompoundExpression result = new CompoundExpressionImpl("()");
+			final Expression child = parseE(str.substring(1, str.length() - 1));
+			child.setParent(result);
+			result.addSubexpression(child);
 			return result;
 		}
 		// try L

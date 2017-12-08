@@ -1,4 +1,7 @@
 import javafx.scene.Node;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
 
 /**
  * CS 210X 2017 B-term (Sinha, Backe) 
@@ -6,7 +9,7 @@ import javafx.scene.Node;
  */
 public class LiteralExpression implements Expression {
 
-	private final String _value;
+	final String _value;
 	private CompoundExpression _parent;
 
 	// Constructor
@@ -49,8 +52,7 @@ public class LiteralExpression implements Expression {
 	 */
 	@Override
 	public Node getNode() {
-		// TODO Auto-generated method stub
-		return null;
+		return new Label(_value);
 	}
 
 	/**

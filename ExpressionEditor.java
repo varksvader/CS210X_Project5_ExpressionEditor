@@ -45,7 +45,7 @@ public class ExpressionEditor extends Application {
 	/**
 	 * Initial expression shown in the textbox
 	 */
-	private static final String EXAMPLE_EXPRESSION = "2*x+3*y+4*z+(7+6*z)";
+    private static final String EXAMPLE_EXPRESSION = "2*x+3*y+4*z+(7+6*z)";
 
 	/**
 	 * Parser used for parsing expressions.

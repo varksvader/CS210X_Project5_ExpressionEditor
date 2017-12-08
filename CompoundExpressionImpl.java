@@ -1,6 +1,9 @@
 import java.util.*;
 
 import javafx.scene.Node;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 
 /**
  * CS 210X 2017 B-term (Sinha, Backe) 
@@ -58,8 +61,21 @@ public class CompoundExpressionImpl implements CompoundExpression {
 	 */
 	@Override
 	public Node getNode() {
-		// TODO Auto-generated method stub
-		return null;
+		final HBox hbox = new HBox();
+		for (int i = 0; i < _children.size(); i++) {
+			if (_children.get(i) instanceof CompoundExpressionImpl) {
+				hbox.getChildren().add(_children.get(i).getNode());
+				if (i != _children.size() - 1) {
+					hbox.getChildren().add(new Label(((CompoundExpressionImpl) _children.get(i))._operator));
+				}
+			} else {
+				hbox.getChildren().add(new Label(((LiteralExpression) _children.get(i))._value));
+				if (i != _children.size() - 1) {
+					hbox.getChildren().add(new Label(_operator));
+				}
+			}
+		}
+		return hbox;
 	}
 
 	/**
@@ -133,7 +149,7 @@ public class CompoundExpressionImpl implements CompoundExpression {
 	 * Helper method for flatten
 	 * Resets the children of the specified expression to be empty
 	 */
-	protected void clearSubexpression() {
+	private void clearSubexpression() {
 		_children = new ArrayList<Expression>();
 	}
 }
