@@ -7,8 +7,8 @@ interface Expression {
 	 * Border for showing a focused expression
 	 */
 	public static final Border RED_BORDER = new Border(
-			new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)
-			);
+		new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)
+		);
 
 	/**
 	 * Border for showing a non-focused expression
