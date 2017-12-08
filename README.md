@@ -9,3 +9,6 @@
 * Create a shadow copy (ghost) that shows where the expression should be
   * Actual expression should follow the mouse
   * When click is released, the actual expression returns to the same place as the shadow copy
+
+### Print parseTree after you switch terms in GUI ###
+R2 will be graded by hand, this print statement is how our code will be graded.
