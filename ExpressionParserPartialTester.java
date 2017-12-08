@@ -94,6 +94,30 @@ public class ExpressionParserPartialTester {
         final String parseTreeStr = "+\n\t2\n\tx\n\ty\n\tz\n\t3\n";
         assertEquals(parseTreeStr, _parser.parse(expressionStr, false).convertToString(0).replace('*', '·'));
     }
+    
+    @Test
+    /**
+     * Verifies that a specific expression is parsed into the correct parse tree.
+     */
+    public void testExpression5 () throws ExpressionParseException {
+        final String expressionStr = "2*x+3*y+4*z+(7+6*z)";
+        final String parseTreeStr = "+\n\t·\n\t\t2\n\t\tx\n\t·\n\t\t3\n\t\ty\n\t·\n\t\t4\n\t\tz\n\t()\n\t\t+\n\t\t\t7\n\t\t\t·\n\t\t\t\t6\n\t\t\t\tz\n";
+        System.out.println(_parser.parse(expressionStr, false).convertToString(0).replace('*', '·'));
+        System.out.println(parseTreeStr);
+        assertEquals(parseTreeStr, _parser.parse(expressionStr, false).convertToString(0).replace('*', '·'));
+    }
+    
+    @Test
+    /**
+     * Verifies that a specific expression is parsed into the correct parse tree.
+     */
+    public void testExpression6 () throws ExpressionParseException {
+        final String expressionStr = "7*x+4*y+3*z";
+        final String parseTreeStr = "+\n\t·\n\t\t7\n\t\tx\n\t·\n\t\t4\n\t\ty\n\t·\n\t\t3\n\t\tz\n";
+        System.out.println(_parser.parse(expressionStr, false).convertToString(0).replace('*', '·'));
+        System.out.println(parseTreeStr);
+        assertEquals(parseTreeStr, _parser.parse(expressionStr, false).convertToString(0).replace('*', '·'));
+    }
 
 	@Test
 	/**
