@@ -47,8 +47,10 @@ public class SimpleExpressionParser implements ExpressionParser {
 	 * @return the expression parsed into a tree
 	 */
 	private Expression parseE(String str) {
+		// if it can be parsed as an A
 		if (parseA(str) != null) {
 			return parseA(str);
+		// if it can be parsed as an X
 		} else if (parseX(str) != null) {
 			return parseX(str);
 		}
@@ -62,21 +64,18 @@ public class SimpleExpressionParser implements ExpressionParser {
 	 * @return the additive expression parsed into a tree
 	 */
 	private Expression parseA(String str) {
-		// Check A+M
+		// try A+M
 		int idxOfPlus = str.indexOf('+');
 		while (idxOfPlus > 0) { // try each +
-			if (parseA(str.substring(0, idxOfPlus)) != null && parseM(
-					str.substring(idxOfPlus + 1)) != null) {
-				Expression result = new CompoundExpressionImpl("+");
-				((CompoundExpressionImpl) result).addSubexpression(
-						parseA(str.substring(0, idxOfPlus)));
-				((CompoundExpressionImpl) result).addSubexpression(
-						parseM(str.substring(idxOfPlus + 1)));
+			if (parseA(str.substring(0, idxOfPlus)) != null && parseM(str.substring(idxOfPlus + 1)) != null) {
+				final Expression result = new CompoundExpressionImpl("+");
+				((CompoundExpression) result).addSubexpression(parseA(str.substring(0, idxOfPlus)));
+				((CompoundExpression) result).addSubexpression(parseM(str.substring(idxOfPlus + 1)));
 				return result;
 			}
 			idxOfPlus = str.indexOf('+', idxOfPlus + 1);
 		}
-		// Check M
+		// try M
 		if (parseM(str) != null) {
 			return parseM(str);
 		}
@@ -90,21 +89,18 @@ public class SimpleExpressionParser implements ExpressionParser {
 	 * @return the multiplicative expression parsed into a tree
 	 */
 	private Expression parseM(String str) {
-		// Check M*M
+		// try M*M
 		int idxOfTimes = str.indexOf('*');
 		while (idxOfTimes > 0) { // try each *
-			if (parseM(str.substring(0, idxOfTimes)) != null && parseM(
-					str.substring(idxOfTimes + 1)) != null) {
-				Expression result = new CompoundExpressionImpl("*");
-				((CompoundExpressionImpl) result).addSubexpression(
-						parseM(str.substring(0, idxOfTimes)));
-				((CompoundExpressionImpl) result).addSubexpression(
-						parseM(str.substring(idxOfTimes + 1)));
+			if (parseM(str.substring(0, idxOfTimes)) != null && parseM(str.substring(idxOfTimes + 1)) != null) {
+				final Expression result = new CompoundExpressionImpl("*");
+				((CompoundExpression) result).addSubexpression(parseM(str.substring(0, idxOfTimes)));
+				((CompoundExpression) result).addSubexpression(parseM(str.substring(idxOfTimes + 1)));
 				return result;
 			}
-			idxOfTimes = str.indexOf('+', idxOfTimes + 1);
+			idxOfTimes = str.indexOf('*', idxOfTimes + 1);
 		}
-		// Check X
+		// try X
 		if (parseX(str) != null) {
 			return parseX(str);
 		}
@@ -118,15 +114,13 @@ public class SimpleExpressionParser implements ExpressionParser {
 	 * @return the parenthetical or literal expression parsed into a tree
 	 */
 	private Expression parseX(String str) {
-		// Check (E)
-		if (str.startsWith("(") && str.endsWith(")") && 
-				parseE(str.substring(1, str.length() - 1)) != null) {
-			Expression result = new CompoundExpressionImpl("()");
-			((CompoundExpressionImpl) result).addSubexpression(
-					parseE(str.substring(1, str.length() - 1)));
+		// try (E)
+		if (str.startsWith("(") && str.endsWith(")") && parseE(str.substring(1, str.length() - 1)) != null) {
+			final Expression result = new CompoundExpressionImpl("()");
+			((CompoundExpression) result).addSubexpression(parseE(str.substring(1, str.length() - 1)));
 			return result;
 		}
-		// Check L
+		// try L
 		if (parseL(str) != null) {
 			return parseL(str);
 		}
