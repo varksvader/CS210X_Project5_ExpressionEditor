@@ -63,7 +63,13 @@ public class CompoundExpressionImpl implements CompoundExpression {
 		final HBox hbox = new HBox();
 		for (int i = 0; i < _children.size(); i++) {
 			if (_children.get(i) instanceof CompoundExpressionImpl) {
-				hbox.getChildren().add(_children.get(i).getNode());
+				if (_operator.equals("()")) {
+					hbox.getChildren().add(new Label("("));
+					hbox.getChildren().add(_children.get(i).getNode());
+					hbox.getChildren().add(new Label(")"));
+				} else {
+					hbox.getChildren().add(_children.get(i).getNode());
+				}
 			} else {
 				hbox.getChildren().add(new Label(((LiteralExpression) _children.get(i))._value));
 			}
