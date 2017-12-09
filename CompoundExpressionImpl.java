@@ -62,19 +62,23 @@ public class CompoundExpressionImpl implements CompoundExpression {
 	public Node getNode() {
 		final HBox hbox = new HBox();
 		for (int i = 0; i < _children.size(); i++) {
-			if (_children.get(i) instanceof CompoundExpressionImpl) {
-				if (_operator.equals("()")) {
-					hbox.getChildren().add(new Label("("));
-					hbox.getChildren().add(_children.get(i).getNode());
-					hbox.getChildren().add(new Label(")"));
-				} else {
-					hbox.getChildren().add(_children.get(i).getNode());
-				}
-			} else {
-				hbox.getChildren().add(new Label(((LiteralExpression) _children.get(i))._value));
+			// Starts parentheses
+			if (_operator.equals("()")) {
+				hbox.getChildren().add(new Label("("));
 			}
+			// Use recursion to get subexpressions
+			if (_children.get(i) instanceof CompoundExpressionImpl) {
+				hbox.getChildren().add(_children.get(i).getNode());
+			} else {
+				hbox.getChildren().add(((LiteralExpression) _children.get(i)).getNode());
+			}
+			// Adds operators * or +
 			if (i != _children.size() - 1) {
 				hbox.getChildren().add(new Label(_operator));
+			}
+			// end parentheses
+			if (_operator.equals("()")) {
+				hbox.getChildren().add(new Label(")"));
 			}
 		}
 		return hbox;
