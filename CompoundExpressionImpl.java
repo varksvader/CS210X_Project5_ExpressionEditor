@@ -1,8 +1,12 @@
 import java.util.*;
+
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 
 /**
  * CS 210X 2017 B-term (Sinha, Backe) 
@@ -60,18 +64,15 @@ public class CompoundExpressionImpl implements CompoundExpression {
 	 */
 	@Override
 	public Node getNode() {
-		final HBox hbox = new HBox();
+		final Pane hbox = new HBox();
 		for (int i = 0; i < _children.size(); i++) {
 			// Starts parentheses
 			if (_operator.equals("()")) {
 				hbox.getChildren().add(new Label("("));
 			}
 			// Use recursion to get subexpressions
-			if (_children.get(i) instanceof CompoundExpressionImpl) {
-				hbox.getChildren().add(_children.get(i).getNode());
-			} else {
-				hbox.getChildren().add(((LiteralExpression) _children.get(i)).getNode());
-			}
+			hbox.getChildren().add((_children.get(i)).getNode());
+
 			// Adds operators * or +
 			if (i != _children.size() - 1) {
 				hbox.getChildren().add(new Label(_operator));

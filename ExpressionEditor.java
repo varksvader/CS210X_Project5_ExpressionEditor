@@ -1,20 +1,20 @@
 import javafx.application.Application;
+
+import java.awt.*;
 import java.util.*;
 import javafx.geometry.Point2D;
+import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.Scene;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.*;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.event.EventHandler;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 public class ExpressionEditor extends Application {
@@ -26,14 +26,41 @@ public class ExpressionEditor extends Application {
 	 * Mouse event handler for the entire pane that constitutes the ExpressionEditor
 	 */
 	private static class MouseEventHandler implements EventHandler<MouseEvent> {
+
+		private Pane pane;
+		private CompoundExpression root;
+		double lastX, lastY;
+
 		MouseEventHandler (Pane pane_, CompoundExpression rootExpression_) {
+			this.pane = pane_;
+			root = rootExpression_;
 		}
 
 		public void handle (MouseEvent event) {
+			final double sceneX = event.getSceneX();
+			final double sceneY = event.getSceneY();
+
 			if (event.getEventType() == MouseEvent.MOUSE_PRESSED) {
+
+//				if ((pane.getChildren().get(0)).contains(sceneX, sceneY)) {
+//					((Pane) pane.getChildren().get(0)).setBorder(Expression.NO_BORDER);
+//				} else {
+//					((Pane) pane.getChildren().get(0)).setBorder(Expression.RED_BORDER);
+//				}
+
 			} else if (event.getEventType() == MouseEvent.MOUSE_DRAGGED) {
+				pane.setTranslateX(pane.getTranslateX() + sceneX - lastX);
+				pane.setTranslateY(pane.getTranslateY() + sceneY - lastY);
 			} else if (event.getEventType() == MouseEvent.MOUSE_RELEASED) {
+				pane.setLayoutX(pane.getLayoutX() + pane.getTranslateX());
+				pane.setLayoutY(pane.getLayoutY() + pane.getTranslateY());
+
+				pane.setTranslateX(0);
+				pane.setTranslateY(0);
 			}
+
+			lastX = sceneX;
+			lastY = sceneY;
 		}
 	}
 
@@ -76,6 +103,7 @@ public class ExpressionEditor extends Application {
 					expressionPane.getChildren().add(expression.getNode());
 					expression.getNode().setLayoutX(WINDOW_WIDTH/4);
 					expression.getNode().setLayoutY(WINDOW_HEIGHT/2);
+					((Pane) expression.getNode()).setBorder(Expression.RED_BORDER);
 
 					// If the parsed expression is a CompoundExpression, then register some callbacks
 					if (expression instanceof CompoundExpression) {
