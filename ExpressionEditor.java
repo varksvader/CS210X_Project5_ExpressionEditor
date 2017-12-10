@@ -30,23 +30,53 @@ public class ExpressionEditor extends Application {
 		private Pane pane;
 		private CompoundExpression root;
 		double lastX, lastY;
+		private Region focus;
 
 		MouseEventHandler (Pane pane_, CompoundExpression rootExpression_) {
 			this.pane = pane_;
 			root = rootExpression_;
+			focus = null;
+
+			// pane's and the root's children mirror each other
 		}
 
 		public void handle (MouseEvent event) {
 			final double sceneX = event.getSceneX();
 			final double sceneY = event.getSceneY();
 
+			final Pane hbox = (Pane) pane.getChildren().get(0);
+
 			if (event.getEventType() == MouseEvent.MOUSE_PRESSED) {
 
-//				if ((pane.getChildren().get(0)).contains(sceneX, sceneY)) {
-//					((Pane) pane.getChildren().get(0)).setBorder(Expression.NO_BORDER);
-//				} else {
-//					((Pane) pane.getChildren().get(0)).setBorder(Expression.RED_BORDER);
-//				}
+				for (Node child : hbox.getChildrenUnmodifiable()) {
+					if (child.contains(child.sceneToLocal(sceneX, sceneY))) {
+						// A literal expression or a  * or +
+						if (child instanceof Label) {
+							if (!((Label) child).getText().equals("*") && !((Label) child).getText().equals("+")) {
+								if (focus != null) {
+									focus.setBorder(Expression.NO_BORDER);
+								}
+								focus = (Region) child;
+								focus.setBorder(Expression.RED_BORDER);
+							} else {
+								focus.setBorder(Expression.NO_BORDER);
+								focus = hbox;
+								focus.setBorder(Expression.NO_BORDER);
+							}
+						} else {
+							if (focus != null) {
+								focus.setBorder(Expression.NO_BORDER);
+							}
+							focus = (Region) child;
+							focus.setBorder(Expression.RED_BORDER);
+						}
+					} else {
+//						if (focus != null) {
+//							focus.setBorder(Expression.NO_BORDER);
+//							focus = null;
+//						}
+					}
+				}
 
 			} else if (event.getEventType() == MouseEvent.MOUSE_DRAGGED) {
 				pane.setTranslateX(pane.getTranslateX() + sceneX - lastX);
@@ -103,7 +133,6 @@ public class ExpressionEditor extends Application {
 					expressionPane.getChildren().add(expression.getNode());
 					expression.getNode().setLayoutX(WINDOW_WIDTH/4);
 					expression.getNode().setLayoutY(WINDOW_HEIGHT/2);
-					((Pane) expression.getNode()).setBorder(Expression.RED_BORDER);
 
 					// If the parsed expression is a CompoundExpression, then register some callbacks
 					if (expression instanceof CompoundExpression) {
