@@ -9,13 +9,16 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.Scene;
+import javafx.scene.control.Labeled;
 import javafx.scene.layout.*;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.event.EventHandler;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
+
 
 public class ExpressionEditor extends Application {
 	public static void main (String[] args) {
@@ -29,40 +32,49 @@ public class ExpressionEditor extends Application {
 
 		private Pane pane;
 		private CompoundExpression root;
-		double lastX, lastY;
+		private double lastX, lastY;
 		private Region focus;
+		private final Region hbox;
 
 		MouseEventHandler (Pane pane_, CompoundExpression rootExpression_) {
 			this.pane = pane_;
 			root = rootExpression_;
-			focus = null;
+			focus = (Pane) pane.getChildren().get(0);
+			hbox = (Pane) pane.getChildren().get(0);
 
 			// pane's and the root's children mirror each other
+		}
+
+		private void clearFocus() {
+			focus.setBorder(Expression.NO_BORDER);
+			focus = hbox;
+			focus.setBorder(Expression.NO_BORDER);
 		}
 
 		public void handle (MouseEvent event) {
 			final double sceneX = event.getSceneX();
 			final double sceneY = event.getSceneY();
 
-			final Pane hbox = (Pane) pane.getChildren().get(0);
-
 			if (event.getEventType() == MouseEvent.MOUSE_PRESSED) {
 
-				for (Node child : hbox.getChildrenUnmodifiable()) {
+				boolean childContainsClick = false;
+
+				for (Node child : focus.getChildrenUnmodifiable()) {
 					if (child.contains(child.sceneToLocal(sceneX, sceneY))) {
+						childContainsClick = true;
 						// A literal expression or a  * or +
 						if (child instanceof Label) {
 							if (!((Label) child).getText().equals("*") && !((Label) child).getText().equals("+")) {
 								if (focus != null) {
-									focus.setBorder(Expression.NO_BORDER);
+									clearFocus();
 								}
 								focus = (Region) child;
 								focus.setBorder(Expression.RED_BORDER);
 							} else {
-								focus.setBorder(Expression.NO_BORDER);
-								focus = hbox;
-								focus.setBorder(Expression.NO_BORDER);
+								clearFocus();
 							}
+						} else if (child instanceof Text) { // if a literal expression is clicked on
+							clearFocus();
 						} else {
 							if (focus != null) {
 								focus.setBorder(Expression.NO_BORDER);
@@ -70,23 +82,24 @@ public class ExpressionEditor extends Application {
 							focus = (Region) child;
 							focus.setBorder(Expression.RED_BORDER);
 						}
-					} else {
-//						if (focus != null) {
-//							focus.setBorder(Expression.NO_BORDER);
-//							focus = null;
-//						}
 					}
 				}
 
-			} else if (event.getEventType() == MouseEvent.MOUSE_DRAGGED) {
-				pane.setTranslateX(pane.getTranslateX() + sceneX - lastX);
-				pane.setTranslateY(pane.getTranslateY() + sceneY - lastY);
-			} else if (event.getEventType() == MouseEvent.MOUSE_RELEASED) {
-				pane.setLayoutX(pane.getLayoutX() + pane.getTranslateX());
-				pane.setLayoutY(pane.getLayoutY() + pane.getTranslateY());
+				if (!childContainsClick) {
+					clearFocus();
+				}
 
-				pane.setTranslateX(0);
-				pane.setTranslateY(0);
+
+
+			} else if (event.getEventType() == MouseEvent.MOUSE_DRAGGED) {
+				focus.setTranslateX(focus.getTranslateX() + sceneX - lastX);
+				focus.setTranslateY(focus.getTranslateY() + sceneY - lastY);
+			} else if (event.getEventType() == MouseEvent.MOUSE_RELEASED) {
+				focus.setLayoutX(focus.getLayoutX() + focus.getTranslateX());
+				focus.setLayoutY(focus.getLayoutY() + focus.getTranslateY());
+
+				focus.setTranslateX(0);
+				focus.setTranslateY(0);
 			}
 
 			lastX = sceneX;
