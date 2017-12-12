@@ -1,7 +1,8 @@
 import javafx.application.Application;
-
 import java.awt.*;
 import java.util.*;
+
+import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
@@ -30,80 +31,109 @@ public class ExpressionEditor extends Application {
 	 */
 	private static class MouseEventHandler implements EventHandler<MouseEvent> {
 
-		private Pane pane;
-		private CompoundExpression root;
-		private double lastX, lastY;
-		private Region focus;
-		private final Region hbox;
+		private Pane _pane;
+		private final CompoundExpression _root;
+		private double _lastX, _lastY;
+		// private Region _focus;
+		// private final Region _hbox;
+		private Expression _focusedExpression;
+        private Expression _ghostExpression;
 
-		MouseEventHandler (Pane pane_, CompoundExpression rootExpression_) {
-			this.pane = pane_;
-			root = rootExpression_;
-			focus = (Pane) pane.getChildren().get(0);
-			hbox = (Pane) pane.getChildren().get(0);
-
+		MouseEventHandler (Pane pane, CompoundExpression rootExpression) {
 			// pane's and the root's children mirror each other
+			_pane = pane;
+			_root = rootExpression;
+			//_focus = (Pane) pane.getChildren().get(0);
+			//_hbox = (Pane) pane.getChildren().get(0);
+			_focusedExpression = null;
+			_ghostExpression = null;
 		}
 
+		/**
 		private void clearFocus() {
-			focus.setBorder(Expression.NO_BORDER);
-			focus = hbox;
-			focus.setBorder(Expression.NO_BORDER);
-		}
+			_focus.setBorder(Expression.NO_BORDER);
+			_focus = _hbox;
+			_focus.setBorder(Expression.NO_BORDER);
+		} */
 
 		public void handle (MouseEvent event) {
 			final double sceneX = event.getSceneX();
 			final double sceneY = event.getSceneY();
 
 			if (event.getEventType() == MouseEvent.MOUSE_PRESSED) {
-
+				/**
 				boolean childContainsClick = false;
 
-				for (Node child : focus.getChildrenUnmodifiable()) {
+				for (Node child : _focus.getChildrenUnmodifiable()) {
 					if (child.contains(child.sceneToLocal(sceneX, sceneY))) {
 						childContainsClick = true;
 						// A literal expression or a  * or +
 						if (child instanceof Label) {
 							if (!((Label) child).getText().equals("*") && !((Label) child).getText().equals("+")) {
-								if (focus != null) {
+								if (_focus != null) {
 									clearFocus();
 								}
-								focus = (Region) child;
-								focus.setBorder(Expression.RED_BORDER);
+								_focus = (Region) child;
+								_focus.setBorder(Expression.RED_BORDER);
 							} else {
 								clearFocus();
 							}
 						} else if (child instanceof Text) { // if a literal expression is clicked on
 							clearFocus();
 						} else {
-							if (focus != null) {
-								focus.setBorder(Expression.NO_BORDER);
+							if (_focus != null) {
+								_focus.setBorder(Expression.NO_BORDER);
 							}
-							focus = (Region) child;
-							focus.setBorder(Expression.RED_BORDER);
+							_focus = (Region) child;
+							_focus.setBorder(Expression.RED_BORDER);
 						}
 					}
 				}
 
 				if (!childContainsClick) {
 					clearFocus();
-				}
-
-
+				} */
 
 			} else if (event.getEventType() == MouseEvent.MOUSE_DRAGGED) {
-				focus.setTranslateX(focus.getTranslateX() + sceneX - lastX);
-				focus.setTranslateY(focus.getTranslateY() + sceneY - lastY);
+				/**
+				_focus.setTranslateX(_focus.getTranslateX() + sceneX - _lastX);
+				_focus.setTranslateY(_focus.getTranslateY() + sceneY - _lastY); */
+				
+				//Node _ghostNode = _ghostExpression.getGhostNode();
+				
+				if (_focusedExpression != null) {
+                    if (_ghostExpression == null) {
+                        Bounds bounds = _focusedExpression.getNode().localToScene(_focusedExpression.getNode().getBoundsInLocal());
+                        _ghostExpression = _focusedExpression.deepCopy();
+                        _pane.getChildren().add(_ghostExpression.getGhostNode());
+                        _ghostExpression.getGhostNode().setLayoutX(bounds.getMinX());
+                        _ghostExpression.getGhostNode().setLayoutY(bounds.getMinY());
+                    }
+                    _ghostExpression.getGhostNode().setTranslateX(_ghostExpression.getGhostNode().getTranslateX() + (sceneX - _lastX));
+                    _ghostExpression.getGhostNode().setTranslateY(_ghostExpression.getGhostNode().getTranslateY() + (sceneY - _lastY));
+                    ((Expression) _focusedExpression).swap(sceneX);
+                }
 			} else if (event.getEventType() == MouseEvent.MOUSE_RELEASED) {
-				focus.setLayoutX(focus.getLayoutX() + focus.getTranslateX());
-				focus.setLayoutY(focus.getLayoutY() + focus.getTranslateY());
-
-				focus.setTranslateX(0);
-				focus.setTranslateY(0);
+				/**
+				_focus.setLayoutX(_focus.getLayoutX() + _focus.getTranslateX());
+				_focus.setLayoutY(_focus.getLayoutY() + _focus.getTranslateY());
+				//_focus.setTranslateX(0);
+				//_focus.setTranslateY(0); */
+				
+				if (_ghostExpression == null) {
+                    if (_focusedExpression == null) {
+                        _focusedExpression = ((Expression) _root).focus(sceneX, sceneY);
+                    } else {
+                        ((HBox) _focusedExpression.getNode()).setBorder(Expression.NO_BORDER);
+                        _focusedExpression = ((Expression) _focusedExpression).focus(sceneX, sceneY);
+                    }
+                } else {
+                    _pane.getChildren().remove(_ghostExpression.getNode());
+                    _ghostExpression = null;
+                }
 			}
-
-			lastX = sceneX;
-			lastY = sceneY;
+			_lastX = sceneX;
+			_lastY = sceneY;
 		}
 	}
 

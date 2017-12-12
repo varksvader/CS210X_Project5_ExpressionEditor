@@ -1,12 +1,14 @@
 import java.util.*;
 
+import javafx.collections.FXCollections;
+import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 /**
@@ -33,6 +35,14 @@ public class CompoundExpressionImpl implements CompoundExpression {
 	@Override
 	public CompoundExpression getParent() {
 		return _parent;
+	}
+	
+	/**
+	 * Returns the expression's children.
+	 * @return the expression's children
+	 */
+	protected List<Expression> getChildren() {
+		return _children;
 	}
 
 	/**
@@ -72,8 +82,7 @@ public class CompoundExpressionImpl implements CompoundExpression {
 				hbox.getChildren().add(new Label("("));
 			}
 			// Use recursion to get subexpressions
-			hbox.getChildren().add((_children.get(i)).getNode());
-
+			hbox.getChildren().add(_children.get(i).getNode());
 			// Adds operators * or +
 			if (i != _children.size() - 1) {
 				hbox.getChildren().add(new Label(_operator));
@@ -83,9 +92,39 @@ public class CompoundExpressionImpl implements CompoundExpression {
 				hbox.getChildren().add(new Label(")"));
 			}
 		}
-		// hbox.setBorder(Expression.RED_BORDER);
 		return hbox;
-
+	}
+	
+	/**
+	 * Returns the ghost version of the JavaFX node associated with this expression.
+	 * @return the ghost version of the JavaFX node associated with this expression.
+	 */
+	@Override
+	public Node getGhostNode() {
+		final Pane hbox = new HBox();
+		for (int i = 0; i < _children.size(); i++) {
+			// Starts parentheses
+			if (_operator.equals("()")) {
+				Label startParen = new Label("(");
+				startParen.setTextFill(GHOST_COLOR);
+				hbox.getChildren().add(startParen);
+			}
+			// Use recursion to get subexpressions
+			hbox.getChildren().add(_children.get(i).getNode());
+			// Adds operators * or +
+			if (i != _children.size() - 1) {
+				Label operator = new Label(_operator);
+				operator.setTextFill(GHOST_COLOR);
+				hbox.getChildren().add(new Label(_operator));
+			}
+			// end parentheses
+			if (_operator.equals("()")) {
+				Label closeParen = new Label(")");
+				closeParen.setTextFill(GHOST_COLOR);
+				hbox.getChildren().add(closeParen);
+			}
+		}
+		return hbox;
 	}
 
 	/**
@@ -162,4 +201,88 @@ public class CompoundExpressionImpl implements CompoundExpression {
 	private void clearSubexpression() {
 		_children = new ArrayList<Expression>();
 	}
+	
+	public void swap(double x) {
+		Node node = this.getNode();
+        if (_parent != null && node != null) {
+            final HBox p = (HBox) node.getParent();
+            List<Node> currentCase = FXCollections.observableArrayList(p.getChildren());
+
+            final int currentIndex = currentCase.indexOf(node);
+            // 2 so as to skip over operation labels
+            final int leftIndex = currentIndex - 2;
+            final int rightIndex = currentIndex + 2;
+
+            final int expressionIndex = (int) currentIndex / 2;
+            final int leftExpressionIndex = expressionIndex - 1;
+            final int rightExpressionIndex = expressionIndex + 1;
+
+            Bounds currentBoundsInScene = node.localToScene(node.getBoundsInLocal());
+            final double currentX = currentBoundsInScene.getMinX();
+            double leftX = currentX;
+            double leftWidth = 0;
+            double operatorWidth = 0;
+
+            if (currentCase.size() > 0) {
+                if (currentIndex == 0) {
+                    operatorWidth = ((Region)currentCase.get(1)).getWidth();
+                } else {
+                    operatorWidth = ((Region)currentCase.get(currentCase.size() - 2)).getWidth();
+                }
+            }
+
+            List<Node> leftCase = FXCollections.observableArrayList(p.getChildren());
+            if (leftIndex >= 0) {
+                Collections.swap(leftCase, currentIndex, leftIndex);
+
+                Bounds leftBoundsInScene = ((HBox)p).getChildren().get(leftIndex).localToScene(((HBox)p).getChildren().get(leftIndex).getBoundsInLocal());
+                leftX = leftBoundsInScene.getMinX();
+                leftWidth = leftBoundsInScene.getWidth();
+
+                if (Math.abs(x - leftX) < Math.abs(x - currentX)) {
+                    p.getChildren().setAll(leftCase);
+                    swapSubexpressions(expressionIndex, leftExpressionIndex);
+                    return;
+                }
+            }
+
+            List<Node> rightCase = FXCollections.observableArrayList(p.getChildren());
+            if (rightIndex < rightCase.size()) {
+                Collections.swap(rightCase, currentIndex, rightIndex);
+
+                Bounds rightBoundsInScene = ((HBox)p).getChildren().get(rightIndex).localToScene(((HBox)p).getChildren().get(rightIndex).getBoundsInLocal());
+
+                final double rightX = leftX + leftWidth + operatorWidth + rightBoundsInScene.getWidth() + operatorWidth;
+
+                if (Math.abs(x - rightX) < Math.abs(x - currentX)) {
+                    p.getChildren().setAll(rightCase);
+                    swapSubexpressions(expressionIndex, rightExpressionIndex);
+                    return;
+                }
+            }
+        }
+    }
+
+    private void swapSubexpressions(int currentIndex, int swapIndex) {
+        Collections.swap(((CompoundExpressionImpl) _parent).getChildren(), currentIndex, swapIndex);
+    }
+    
+    public Expression focus(double x, double y) {
+
+        for(Expression child : _children) {
+
+            Bounds boundsInScene = child.getNode().localToScene(child.getNode().getBoundsInLocal());
+
+            final double xMin = boundsInScene.getMinX();
+            final double xMax = boundsInScene.getMaxX();
+            final double yMin = boundsInScene.getMinY();
+            final double yMax = boundsInScene.getMaxY();
+
+            if (((x <= xMax) && (x >= xMin)) && ((y <= yMax) && (y >= yMin))) {
+                ((HBox)child.getNode()).setBorder(RED_BORDER);
+                return child;
+            }
+        }
+        return null;
+    }
 }

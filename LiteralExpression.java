@@ -1,7 +1,15 @@
+import java.util.Collections;
+import java.util.List;
+
+import javafx.collections.FXCollections;
+import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 
 /**
  * CS 210X 2017 B-term (Sinha, Backe) 
@@ -54,6 +62,17 @@ public class LiteralExpression implements Expression {
 	public Node getNode() {
 		return new Label(_value);
 	}
+	
+	/**
+	 * Returns the ghost version of the JavaFX node associated with this expression.
+	 * @return the ghost version of the JavaFX node associated with this expression.
+	 */
+	@Override
+	public Node getGhostNode() {
+		Label literal = new Label(_value);
+		literal.setTextFill(GHOST_COLOR);
+		return literal;
+	}
 
 	/**
 	 * Recursively flattens the expression as much as possible
@@ -78,4 +97,73 @@ public class LiteralExpression implements Expression {
 		buf.append(_value + "\n");
 		return buf.toString();
 	}
+	
+	public void swap(double x) {
+		Node node = this.getNode();
+        if (_parent != null && node != null) {
+            final HBox p = (HBox) node.getParent();
+            List<Node> currentCase = FXCollections.observableArrayList(p.getChildren());
+
+            final int currentIndex = currentCase.indexOf(node);
+            // 2 so as to skip over operation labels
+            final int leftIndex = currentIndex - 2;
+            final int rightIndex = currentIndex + 2;
+
+            final int expressionIndex = (int) currentIndex / 2;
+            final int leftExpressionIndex = expressionIndex - 1;
+            final int rightExpressionIndex = expressionIndex + 1;
+
+            Bounds currentBoundsInScene = node.localToScene(node.getBoundsInLocal());
+            final double currentX = currentBoundsInScene.getMinX();
+            double leftX = currentX;
+            double leftWidth = 0;
+            double operatorWidth = 0;
+
+            if (currentCase.size() > 0) {
+                if (currentIndex == 0) {
+                    operatorWidth = ((Region)currentCase.get(1)).getWidth();
+                } else {
+                    operatorWidth = ((Region)currentCase.get(currentCase.size() - 2)).getWidth();
+                }
+            }
+
+            List<Node> leftCase = FXCollections.observableArrayList(p.getChildren());
+            if (leftIndex >= 0) {
+                Collections.swap(leftCase, currentIndex, leftIndex);
+
+                Bounds leftBoundsInScene = ((HBox)p).getChildren().get(leftIndex).localToScene(((HBox)p).getChildren().get(leftIndex).getBoundsInLocal());
+                leftX = leftBoundsInScene.getMinX();
+                leftWidth = leftBoundsInScene.getWidth();
+
+                if (Math.abs(x - leftX) < Math.abs(x - currentX)) {
+                    p.getChildren().setAll(leftCase);
+                    swapSubexpressions(expressionIndex, leftExpressionIndex);
+                    return;
+                }
+            }
+
+            List<Node> rightCase = FXCollections.observableArrayList(p.getChildren());
+            if (rightIndex < rightCase.size()) {
+                Collections.swap(rightCase, currentIndex, rightIndex);
+
+                Bounds rightBoundsInScene = ((HBox)p).getChildren().get(rightIndex).localToScene(((HBox)p).getChildren().get(rightIndex).getBoundsInLocal());
+
+                final double rightX = leftX + leftWidth + operatorWidth + rightBoundsInScene.getWidth() + operatorWidth;
+
+                if (Math.abs(x - rightX) < Math.abs(x - currentX)) {
+                    p.getChildren().setAll(rightCase);
+                    swapSubexpressions(expressionIndex, rightExpressionIndex);
+                    return;
+                }
+            }
+        }
+    }
+
+    private void swapSubexpressions(int currentIndex, int swapIndex) {
+        Collections.swap(((CompoundExpressionImpl) _parent).getChildren(), currentIndex, swapIndex);
+    }
+    
+    public Expression focus(double x, double y) {
+        return null;
+    }
 }
