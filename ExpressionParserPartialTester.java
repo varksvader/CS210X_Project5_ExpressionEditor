@@ -52,7 +52,7 @@ public class ExpressionParserPartialTester {
 	public void testExpressionA () throws ExpressionParseException {
 		final String expressionStr = "10*x*z+2*(15+y)";
 		final String parseTreeStr = "+\n\t*\n\t\t10\n\t\tx\n\t\tz\n\t*\n\t\t2\n\t\t()\n\t\t\t+\n\t\t\t\t15\n\t\t\t\ty\n";
-		assertEquals(parseTreeStr, _parser.parse(expressionStr, false).convertToString(0));
+		assertEquals(parseTreeStr.replace('*','·'), _parser.parse(expressionStr, false).convertToString(0).replace('*','·'));
 	}
 
 	@Test

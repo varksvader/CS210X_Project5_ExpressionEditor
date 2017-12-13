@@ -25,8 +25,8 @@ public class ExpressionEditor extends Application {
 	 * Mouse event handler for the entire pane that constitutes the ExpressionEditor
 	 */
 	private static class MouseEventHandler implements EventHandler<MouseEvent> {
-		private Pane _pane;
-		private CompoundExpression _rootExpression;
+		final private Pane _pane;
+		final private CompoundExpression _rootExpression;
 		private Expression _focusedExpression;
 		private Expression _copyExpression;
 		private double _lastX;
