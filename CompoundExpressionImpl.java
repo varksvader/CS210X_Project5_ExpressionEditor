@@ -70,19 +70,19 @@ public class CompoundExpressionImpl extends ExpressionImpl implements CompoundEx
      */
     @Override
     protected Pane copyNode() {
-        List<Node> newChildren = new ArrayList<Node>();
+        final List<Node> newChildren = new ArrayList<Node>();
         int index = 0;
         for(Node child : _node.getChildren()) {
         	// if it is a label, create a copy and add to list of children to be added
         	if (child instanceof Label) {
-                Labeled toAdd = new Label(new String(((Label) child).getText()));
+                final Labeled toAdd = new Label(((Label) child).getText());
                 newChildren.add(toAdd);
             } else { // else it is an HBox representing an expression
                 newChildren.add(((ExpressionImpl)_children.get(index)).copyNode());
                 index++;
             }
         }
-        Pane copyNode = new HBox();
+        final Pane copyNode = new HBox();
         copyNode.getChildren().addAll(newChildren);
         return copyNode;
     }
@@ -129,7 +129,7 @@ public class CompoundExpressionImpl extends ExpressionImpl implements CompoundEx
                 if (_node != null) {
                     final List<Node> nodesToAdd = ((Pane) existingChild.getNode()).getChildren();
                     _node.getChildren().addAll(nodesToAdd);
-                    Labeled toAdd = new Label(this.getOperator());
+                    final Labeled toAdd = new Label(this.getOperator());
                     _node.getChildren().add(toAdd);
                 }
             } else{ // keep the existing child and add to the new list to preserve order
@@ -138,7 +138,7 @@ public class CompoundExpressionImpl extends ExpressionImpl implements CompoundEx
                 // same for nodes
                 if (_node != null) {
                     _node.getChildren().add(existingChild.getNode());
-                    Labeled toAdd = new Label(this.getOperator());
+                    final Labeled toAdd = new Label(this.getOperator());
                     _node.getChildren().add(toAdd);
                 }
             }

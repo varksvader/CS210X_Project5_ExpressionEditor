@@ -25,12 +25,12 @@ public class ExpressionEditor extends Application {
 	 * Mouse event handler for the entire pane that constitutes the ExpressionEditor
 	 */
 	private static class MouseEventHandler implements EventHandler<MouseEvent> {
-		Pane _pane;
-		CompoundExpression _rootExpression;
-		Expression _focusedExpression;
-		Expression _copyExpression;
-		double _lastX;
-		double _lastY;
+		private Pane _pane;
+		private CompoundExpression _rootExpression;
+		private Expression _focusedExpression;
+		private Expression _copyExpression;
+		private double _lastX;
+		private double _lastY;
 
 		MouseEventHandler (Pane pane, CompoundExpression rootExpression) {
 			_pane = pane;
@@ -88,8 +88,8 @@ public class ExpressionEditor extends Application {
 			((ExpressionImpl) _focusedExpression).setColor(Expression.GHOST_COLOR);
 			_pane.getChildren().add(_copyExpression.getNode());
 
-			Bounds originalBounds = _focusedExpression.getNode().localToScene(_focusedExpression.getNode().getBoundsInLocal());
-			Bounds copyBounds = _copyExpression.getNode().localToScene(_copyExpression.getNode().getBoundsInLocal());
+			final Bounds originalBounds = _focusedExpression.getNode().localToScene(_focusedExpression.getNode().getBoundsInLocal());
+			final Bounds copyBounds = _copyExpression.getNode().localToScene(_copyExpression.getNode().getBoundsInLocal());
 
 			_copyExpression.getNode().setLayoutX(originalBounds.getMinX() - copyBounds.getMinX());
 			_copyExpression.getNode().setLayoutY(originalBounds.getMinY()- copyBounds.getMinY());

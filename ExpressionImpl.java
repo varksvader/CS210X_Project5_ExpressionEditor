@@ -69,9 +69,9 @@ public class ExpressionImpl implements Expression {
     @Override
     public Expression deepCopy() {
         if(_node == null) {
-            return new ExpressionImpl(new String(_operator));
+            return new ExpressionImpl(_operator);
         }
-        return new ExpressionImpl(new String(_operator), copyNode());
+        return new ExpressionImpl(_operator, copyNode());
     }
 
     /**
@@ -118,8 +118,6 @@ public class ExpressionImpl implements Expression {
         sb.append(_operator + "\n");
         return sb.toString();
     }
-
-    // Is there a way we can make it look much nicer?
     /**
 	 * The specified expression switches places with its sibling whose JavaFX node is at the given x coordinate
 	 * @param x the x coordinate
@@ -128,7 +126,7 @@ public class ExpressionImpl implements Expression {
         if (_parent != null && _node != null) {
             final Pane pane = (Pane) _node.getParent();
             // makes a copy of the node's parent's children
-            List<Node> currentCase = FXCollections.observableArrayList(pane.getChildren());
+            final List<Node> currentCase = FXCollections.observableArrayList(pane.getChildren());
             final int currentIndex = currentCase.indexOf(_node);
             // to skip over operation labels
             final int leftIndex = currentIndex - 2;
@@ -138,7 +136,7 @@ public class ExpressionImpl implements Expression {
             final int leftExpressionIndex = expressionIndex - 1;
             final int rightExpressionIndex = expressionIndex + 1;
             // determining coordinates in scene
-            Bounds currentBoundsInScene = _node.localToScene(_node.getBoundsInLocal());
+            final Bounds currentBoundsInScene = _node.localToScene(_node.getBoundsInLocal());
             final double currentX = currentBoundsInScene.getMinX();
             // if there is no sibling to the left, then the farthest left x coordinate
             double leftX = currentX;
@@ -146,7 +144,8 @@ public class ExpressionImpl implements Expression {
             double operatorWidth = getLabelWidth(currentCase, currentIndex);
             // checks for sibling to the left
             if (leftIndex >= 0) {
-                Bounds leftBoundsInScene = pane.getChildren().get(leftIndex).localToScene(pane.getChildren().get(leftIndex).getBoundsInLocal());
+                Bounds leftBoundsInScene = pane.getChildren().get(leftIndex).
+                        localToScene(pane.getChildren().get(leftIndex).getBoundsInLocal());
                 leftX = leftBoundsInScene.getMinX();
                 leftWidth = leftBoundsInScene.getWidth();
                // if x coordinate is over another sibling, switches nodes
@@ -159,7 +158,8 @@ public class ExpressionImpl implements Expression {
             }
             // checks for sibling to the right
             if (rightIndex < currentCase.size()) {
-                Bounds rightBoundsInScene = pane.getChildren().get(rightIndex).localToScene(pane.getChildren().get(rightIndex).getBoundsInLocal());
+                final Bounds rightBoundsInScene = pane.getChildren().get(rightIndex).
+                        localToScene(pane.getChildren().get(rightIndex).getBoundsInLocal());
                 final double rightX = leftX + leftWidth + operatorWidth + rightBoundsInScene.getWidth() + operatorWidth;
                 // if x coordinate is over another sibling, switches nodes
                 if (Math.abs(x - rightX) < Math.abs(x - currentX)) {
@@ -167,7 +167,6 @@ public class ExpressionImpl implements Expression {
                     pane.getChildren().setAll(currentCase);
                     // swaps the expression itself, not just its JavaFX node
                     swapSubexpressions(expressionIndex, rightExpressionIndex);
-                    return;
                 }
             }
         }
