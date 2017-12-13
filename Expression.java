@@ -46,12 +46,6 @@ interface Expression {
 	 * @return the JavaFX node associated with this expression.
 	 */
 	Node getNode ();
-	
-	/**
-	 * Returns the ghost version of the JavaFX node associated with this expression.
-	 * @return the ghost version of the JavaFX node associated with this expression.
-	 */
-	Node getGhostNode ();
 
 	/**
 	 * Recursively flattens the expression as much as possible
@@ -81,8 +75,4 @@ interface Expression {
 			sb.append('\t');
 		}
 	}
-	
-	public void swap(double x);
-	
-	public Expression focus(double x, double y);
 }
