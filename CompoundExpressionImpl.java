@@ -106,8 +106,8 @@ public class CompoundExpressionImpl extends ExpressionImpl implements CompoundEx
      */
     @Override
     public void flatten() {
-        flattenChildren();
-        if (_representation != null) {
+         flattenChildren();
+        if (_representation.equals("+") || _representation.equals("·")) {
         	flattenSelf();
         }
     }
