@@ -6,4 +6,10 @@ interface CompoundExpression extends Expression {
 	 * @param subexpression the child expression to add
 	 */
 	void addSubexpression (Expression subexpression);
+	
+	/**
+	 * Returns the list of the specified expression's children.
+	 * @return the list of the specified expression's children
+	 */
+	List<Expression> getSubexpressions();
 }

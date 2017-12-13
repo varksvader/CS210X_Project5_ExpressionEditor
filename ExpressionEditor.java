@@ -1,31 +1,19 @@
 import javafx.application.Application;
-
-import java.awt.*;
-import java.lang.reflect.Array;
 import java.util.*;
-import java.util.List;
-
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.geometry.Point2D;
-import javafx.scene.Group;
-import javafx.scene.control.Label;
-import javafx.event.ActionEvent;
+import javafx.geometry.Bounds;
 import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.scene.Scene;
-import javafx.scene.control.Labeled;
-import javafx.scene.layout.*;
-import javafx.scene.Node;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
-import javafx.event.EventHandler;
-import javafx.scene.text.Text;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-
 public class ExpressionEditor extends Application {
+
 	public static void main (String[] args) {
 		launch(args);
 	}
@@ -34,234 +22,76 @@ public class ExpressionEditor extends Application {
 	 * Mouse event handler for the entire pane that constitutes the ExpressionEditor
 	 */
 	private static class MouseEventHandler implements EventHandler<MouseEvent> {
+		Pane _pane;
+		CompoundExpression _rootExpression;
+		Expression _focusedExpression;
+		Expression _copyExpression;
+		double _lastX;
+		double _lastY;
 
-		private Pane pane;
-		private CompoundExpression root;
-		private double lastX, lastY;
-		private Region focus;
-		private final Region hbox;
-		private Expression focusedExpression;
-		private int focusedExpressionIndex;
-		private double[] possibleLocations;
-		private Region deepCopy;
-
-		MouseEventHandler (Pane pane_, CompoundExpression rootExpression_) {
-			this.pane = pane_;
-			root = rootExpression_;
-			focus = (Pane) pane.getChildren().get(0);
-			hbox = focus;
-			focusedExpressionIndex = 0;
-
-			// pane's and the root's children mirror each other
+		MouseEventHandler (Pane pane, CompoundExpression rootExpression) {
+			_pane = pane;
+			_rootExpression = rootExpression;
+			_focusedExpression = null;
+			_copyExpression = null;
 		}
-
-		private void clearFocus() {
-			focus.setBorder(Expression.NO_BORDER);
-			focus = hbox;
-			focus.setBorder(Expression.NO_BORDER);
-			focusedExpression = root;
-		}
-
-		private void makeGhosted(Node node) {
-			if (node instanceof Label) {
-				((Label) node).setTextFill(Expression.GHOST_COLOR);
-			} else {
-				for (Node child : ((Pane) node).getChildren()) {
-					if (child instanceof Label) {
-						((Label) child).setTextFill(Expression.GHOST_COLOR);
-					} else {
-						makeGhosted(child);
-					}
-				}
-			}
-		}
-
-		private int getIndexofClosestValue(double x, double[] coords) {
-			double distance = Math.abs(coords[0] - x);
-			int idx = 0;
-			for(int i = 1; i < coords.length; i++){
-				double cdistance = Math.abs(coords[i] - x);
-				if(cdistance < distance){
-					idx = i;
-					distance = cdistance;
-				}
-			}
-			return idx;
-		}
-
-//		private double[] possibleLocationsOfFocus(List<CompoundExpression> possibilities, Expression focusedExpression) {
-//			double[] coords = new double[possibilities.size()];
-//
-//			int counter = 0;
-//			double coordsSum = 0;
-//			for (CompoundExpression parent : possibilities) {
-//				for (Expression child : ((CompoundExpressionImpl) parent)._children) {
-//					if (child.equals(focusedExpression)) {
-//						coords[counter] = coordsSum;
-//						coordsSum = 0;
-//						break;
-//					} else {
-//						coordsSum += child.getNode().getLayoutBounds().getWidth();
-//					}
-//				}
-//				counter++;
-//			}
-//			return coords;
-//		}
-
-//		private double[] possibleLocationsOfFocus(List<CompoundExpression> possibilities, Node focus, Expression focusedExpression) {
-//
-//			List<HBox> configs = new ArrayList<>();
-//
-//			for (CompoundExpression expr : possibilities) {
-//				configs.add((HBox) expr.getNode());
-//			}
-//
-//			double[] coords = new double[configs.size()];
-//
-//			for (int i = 0; i < configs.size(); i++) {
-//				for (Node child : configs.get(i).getChildren()) {
-//
-//				}
-//			}
-//			return coords;
-//		}
-//
-//		private List<CompoundExpression> generatePossibleExpressions(Expression focusedExpression) {
-//			final List<Expression> siblings = ((CompoundExpressionImpl) focusedExpression.getParent())._children;
-//			final List<CompoundExpression> possibleResults = new ArrayList<>();
-//
-//			siblings.remove(focusedExpression);
-//
-//			for (int i = 0; i < siblings.size() + 1; i++) {
-//				siblings.add(i, focusedExpression);
-//				final CompoundExpression result = new CompoundExpressionImpl(((CompoundExpressionImpl) focusedExpression.getParent())._operator);
-//				for (Expression expr : siblings) {
-//					result.addSubexpression(expr);
-//				}
-//				possibleResults.add(result);
-//				siblings.remove(focusedExpression);
-//			}
-//			return possibleResults;
-//		}
 
 		public void handle (MouseEvent event) {
-			final double sceneX = event.getSceneX();
-			final double sceneY = event.getSceneY();
+
+			final double x = event.getSceneX();
+			final double y = event.getSceneY();
 
 			if (event.getEventType() == MouseEvent.MOUSE_PRESSED) {
-
-				boolean childContainsClick = false;
-
-				final List<Node> children = ((Pane) focus).getChildren();
-
-
-				for (int i = 0; i < children.size(); i++) {
-					Node child = children.get(i);
-
-					if (child.contains(child.sceneToLocal(sceneX, sceneY))) {
-						childContainsClick = true;
-						// A literal expression or a  * or +
-						if (child instanceof Label) {
-							if (!((Label) child).getText().equals("*") && !((Label) child).getText().equals("+")) {
-								if (focus != null) {
-									clearFocus();
-								}
-								focus = (Region) child;
-								focusedExpression = ((CompoundExpressionImpl) focusedExpression)._children.get(i/2); // focus is a literal expression
-								focusedExpressionIndex = i;
-								focus.setBorder(Expression.RED_BORDER);
-							} else {
-								clearFocus();
-							}
-						} else if (child instanceof Text) { // if a literal expression is clicked on
-							clearFocus();
-						} else {
-							if (focus != null) {
-								clearFocus();
-							}
-							focus = (Region) child;
-							focusedExpression = ((CompoundExpressionImpl) focusedExpression)._children.get(i/2);
-							focusedExpressionIndex = i;
-							focus.setBorder(Expression.RED_BORDER);
-						}
-					}
-				}
-
-				if (!childContainsClick) {
-					clearFocus();
-				}
-
-				if (!focus.equals(hbox)) {
-					deepCopy = (Region) focusedExpression.deepCopy().getNode();
-					deepCopy.setLayoutX(focus.getLayoutX());
-					deepCopy.setLayoutY(focus.getLayoutY());
-					makeGhosted(focus);
-					pane.getChildren().add(deepCopy);
-
-				}
-
-
 			} else if (event.getEventType() == MouseEvent.MOUSE_DRAGGED) {
-				if (deepCopy != null) {
-					deepCopy.setTranslateX(deepCopy.getTranslateX() + sceneX - lastX);
-					deepCopy.setTranslateY(deepCopy.getTranslateY() + sceneY - lastY);
-				}
-
-				if (!focus.equals(hbox)) {
-					possibleLocations = new double[((CompoundExpressionImpl) focusedExpression.getParent())._children.size()];
-					int counter = 0;
-					for (int i = 0; i < focus.getParent().getChildrenUnmodifiable().size(); i = i + 2) {
-						possibleLocations[counter] = ((HBox) focus.getParent()).getChildren().get(i).getLayoutX();
-						counter++;
+				// so long as an expression is currently in focus...
+				if (_focusedExpression != null) {
+					//if a copy does not exist, built it
+					if (_copyExpression == null) {
+						buildCopy();
 					}
-//
-//					List<CompoundExpression> possibleConfigurations = generatePossibleExpressions(focusedExpression);
-//
-//					possibleLocations = possibleLocationsOfFocus(possibleConfigurations, focus, focusedExpression);
-
-					final int index = getIndexofClosestValue(sceneX, possibleLocations);
-					System.out.println(Arrays.toString(possibleLocations));
-					focus.setLayoutX(possibleLocations[index]);
-					focus.setLayoutY(hbox.getLayoutY());
-
-
-					if (focusedExpressionIndex != index) {
-						System.out.println("Focused index: " + focusedExpressionIndex);
-						System.out.println("Index: " + index * 2);
-						// modify expression tree based on dragging
-						final List<Expression> siblingsOfFocus = ((CompoundExpressionImpl) focusedExpression.getParent())._children;
-						siblingsOfFocus.remove(focusedExpression);
-						siblingsOfFocus.add(index, focusedExpression);
-						System.out.println(siblingsOfFocus.toString());
-						System.out.println(focusedExpression.getParent().convertToString(0));
-
-						ObservableList<Node> workingCollection = FXCollections.observableArrayList(((Pane) focus.getParent()).getChildren());
-						Collections.swap(workingCollection,index * 2, focusedExpressionIndex);
-						((Pane) focus.getParent()).getChildren().setAll(workingCollection);
-
-						focusedExpressionIndex = index * 2;
-						System.out.println("Focused index 2: " + focusedExpressionIndex);
-						System.out.println("Index 2: " + index * 2);
-					}
-
+					//drags around copy
+					_copyExpression.getNode().setTranslateX(_copyExpression.getNode().getTranslateX() + (x - _lastX));
+					_copyExpression.getNode().setTranslateY(_copyExpression.getNode().getTranslateY() + (y - _lastY));
+					//swaps focused expression accordingly
+					_focusedExpression.swap(x);
 				}
-
-
 			} else if (event.getEventType() == MouseEvent.MOUSE_RELEASED) {
-				focus.setLayoutX(focus.getLayoutX() + focus.getTranslateX());
-				focus.setLayoutY(focus.getLayoutY() + focus.getTranslateY());
-
-				focus.setTranslateX(0);
-				focus.setTranslateY(0);
-
+				//if there is currently no copy, then change focus
+				if (_copyExpression == null) {
+					if (_focusedExpression == null) {
+						_focusedExpression = _rootExpression.focus(x, y);
+					} else {
+						((HBox) _focusedExpression.getNode()).setBorder(Expression.NO_BORDER);
+						_focusedExpression = _focusedExpression.focus(x, y);
+					}
+				} else {
+					//if there is a copy, set it down (aka set it to null and remove from pane)
+					_focusedExpression.setColor(Color.BLACK);
+					_pane.getChildren().remove(_copyExpression.getNode());
+					_copyExpression = null;
+				}
 			}
 
-			lastX = sceneX;
-			lastY = sceneY;
+			_lastX = x;
+			_lastY = y;
+		}
+
+		/**
+		 * Copies the focused expression and puts the copy in the same location as the original
+		 */
+		private void buildCopy() {
+			_copyExpression = _focusedExpression.deepCopy();
+			//ghosts the focused expression
+			_focusedExpression.setColor(Expression.GHOST_COLOR);
+			_pane.getChildren().add(_copyExpression.getNode());
+
+			Bounds originalBounds = _focusedExpression.getNode().localToScene(_focusedExpression.getNode().getBoundsInLocal());
+			Bounds copyBounds = _copyExpression.getNode().localToScene(_copyExpression.getNode().getBoundsInLocal());
+
+			_copyExpression.getNode().setLayoutX(originalBounds.getMinX() - copyBounds.getMinX());
+			_copyExpression.getNode().setLayoutY(originalBounds.getMinY()- copyBounds.getMinY());
 		}
 	}
-
 
 	/**
 	 * Size of the GUI

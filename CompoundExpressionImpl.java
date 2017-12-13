@@ -1,174 +1,244 @@
-import java.util.*;
-
-import javafx.collections.FXCollections;
+//import javafx.collections.FXCollections;
 import javafx.geometry.Bounds;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.Labeled;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * CS 210X 2017 B-term (Sinha, Backe)
- * Expressions that have more than one term (also know as expressions other than literal expressions)
- */
-public class CompoundExpressionImpl implements CompoundExpression {
+public class CompoundExpressionImpl extends ExpressionImpl implements CompoundExpression {
 
-	private CompoundExpression _parent;
-	final String _operator;
-	List<Expression> _children;
+    protected List<Expression> _children;
 
-	// Constructor
-	public CompoundExpressionImpl(String operator) {
-		_parent = null;
-		_operator = operator;
-		_children = new LinkedList<Expression>();
-	}
+    /**
+     * Implementation of the CompoundExpression Interface. Superclass for all types of expressions with children.
+     * @param representation a string representing the type of expression (as in "()", "+", or "·")
+     */
+    protected CompoundExpressionImpl(String representation) {
+        super(representation);
+        _children = new ArrayList<Expression>();
+    }
 
-	/**
-	 * Returns the expression's parent.
-	 * @return the expression's parent
-	 */
-	@Override
-	public CompoundExpression getParent() {
-		return _parent;
-	}
+    /**
+     * Implementation of the CompoundExpression Interface in the case of having a non-null JavaFX node.
+     * Superclass for all types of expressions with children.
+     * @param representation a string representing the type of expression (as in "()", "+", or "·")
+     * @param nodeRepresentation a Pane that is the JavaFX representation of the expression
+     */
+    protected CompoundExpressionImpl(String representation, Pane nodeRepresentation) {
+        super(representation, nodeRepresentation);
+        _children = new ArrayList<Expression>();
+    }
 
-	/**
-	 * Returns the expression's children.
-	 * @return the expression's children
-	 */
-	protected List<Expression> getChildren() {
-		return _children;
-	}
+    /**
+     * Adds the specified expression as a child and sets the child's parent to be this CompoundExpression.
+     * @param subexpression the child expression to add
+     */
+    public void addSubexpression(Expression subexpression) {
+        _children.add(subexpression);
+        // sets this CompoundExpression as the parent since Expressions only have one parent and so the child's parent must be this CompoundExpression
+        subexpression.setParent(this);
+    }
 
-	/**
-	 * Sets the parent be the specified expression.
-	 * @param parent the CompoundExpression that should be the parent of the target object
-	 */
-	@Override
-	public void setParent(CompoundExpression parent) {
-		_parent = parent;
-	}
+    /**
+     * Returns the list of the CompoundExpression's children.
+     * @return list of children
+     */
+    public List<Expression> getSubexpressions() {
+        return _children;
+    }
 
-	/**
-	 * Creates and returns a deep copy of the expression.
-	 * The entire tree rooted at the target node is copied, i.e.,
-	 * the copied Expression is as deep as possible.
-	 * @return the deep copy
-	 */
-	@Override
-	public Expression deepCopy() {
-		final Expression copy = new CompoundExpressionImpl(_operator);
-		for (Expression e : this._children) {
-			((CompoundExpressionImpl) copy).addSubexpression(e.deepCopy());
-		}
-		return copy;
-	}
+    /**
+     * Creates and returns a deep copy of the expression and its JavaFX node if it has one
+     * The entire tree rooted at the target node is copied, i.e.,
+     * the copied Expression is as deep as possible.
+     * @return the deep copy
+     */
+    @Override
+    public Expression deepCopy() {
+        CompoundExpression copy = new CompoundExpressionImpl(new String(_representation));
 
-	/**
-	 * Returns the JavaFX node associated with this expression.
-	 * @return the JavaFX node associated with this expression.
-	 */
+        if (_node != null) {
+            copy = new CompoundExpressionImpl(new String(_representation), copyNode());
+        }
 
-	@Override
-	public Node getNode() {
-		final Pane hbox = new HBox();
-		for (int i = 0; i < _children.size(); i++) {
-			// Starts parentheses
-			if (_operator.equals("()")) {
-				hbox.getChildren().add(new Label("("));
-			}
-			// Use recursion to get subexpressions
-			hbox.getChildren().add(_children.get(i).getNode());
-			// Adds operators * or +
-			if (i != _children.size() - 1) {
-				hbox.getChildren().add(new Label(_operator));
-			}
-			// end parentheses
-			if (_operator.equals("()")) {
-				hbox.getChildren().add(new Label(")"));
-			}
-		}
-		return hbox;
-	}
+        for (Expression child : _children) {
+            copy.addSubexpression(child.deepCopy());
+        }
 
-	/**
-	 * Recursively flattens the expression as much as possible
-	 * throughout the entire tree. Specifically, in every multiplicative
-	 * or additive expression x whose first or last
-	 * child c is of the same type as x, the children of c will be added to x, and
-	 * c itself will be removed. This method modifies the expression itself.
-	 */
-	@Override
-	public void flatten() {
-		// When operator is ()
-		if (_operator.equals("()")) {
-			for (Expression e : this._children) {
-				e.flatten(); // recursively call flatten on children
-			}
-		} else { // When operator is * or +
-			final ArrayList<Expression> toAdd = new ArrayList<Expression>();
-			for (Expression e : this._children) {
-				e.flatten(); // recursively call flatten on children
-				// Check if children is a CompoundExpressionImpl
-				if (e.getClass() == this.getClass()) {
-					// Check if operation of children is the same.
-					if (this._operator.equals(((CompoundExpressionImpl) e)._operator)) {
-						for (Expression c : ((CompoundExpressionImpl) e)._children) {
-							// adds children of children with the same operation to toAdd
-							toAdd.add(c);
-						}
-					} else { // adds the child to toAdd if the operation is different
-						toAdd.add(e);
-					}
-				} else { // adds the child to toAdd if it is of type literal or parenthetical
-					toAdd.add(e);
-				}
-			}
-			this.clearSubexpression(); // clears subexpressions so that the order will stay the same
-			for (Expression a : toAdd) { // adds all Expressions in toAdd as children of this
-				this.addSubexpression(a);
-			}
-		}
-	}
+        return copy;
+    }
 
-	/**
-	 * Creates a String representation by recursively printing out (using indentation) the
-	 * tree represented by this expression, starting at the specified indentation level.
-	 * @param indentLevel the indentation level (number of tabs from the left margin) at which to start
-	 * @return a String representation of the expression tree.
-	 */
-	@Override
-	public String convertToString(int indentLevel) {
-		final StringBuffer buf = new StringBuffer("");
-		Expression.indent(buf, indentLevel);
-		String str = buf.toString() + _operator + "\n";
-		for (Expression child : _children) {
-			str += child.convertToString(indentLevel + 1);
-		}
-		return str;
-	}
+    /**
+     * Creates and returns a deep copy of the JavaFX node representing the expression
+     * @return a Pane which is the deep copy of the expression's JavaFX node
+     */
+    @Override
+    public Pane copyNode() {
+        List<Node> newChildren = new ArrayList<Node>();
 
-	/**
-	 * Adds the specified expression as a child.
-	 * @param subexpression the child expression to add
-	 */
-	@Override
-	public void addSubexpression(Expression subexpression) {
-		_children.add(subexpression);
-		subexpression.setParent(this);
-	}
+        int index = 0;
+        for(Node child : _node.getChildren()) {
+            if (child instanceof Label) {
+                //if its a label, create a copy and add to list of children to be added
+                Labeled toAdd = new Label(new String(((Label) child).getText()));
+                newChildren.add(toAdd);
+            } else {
+                //otherwise its an HBox representing an expression, so call this method on the corresponding expression
+                newChildren.add(((ExpressionImpl)_children.get(index)).copyNode());
+                index++;
+            }
+        }
+        Pane copyNode = new HBox();
+        copyNode.getChildren().addAll(newChildren);
+        return copyNode;
+    }
 
-	/**
-	 * Helper method for flatten
-	 * Resets the children of the specified expression to be empty
-	 */
-	private void clearSubexpression() {
-		_children = new ArrayList<Expression>();
-	}
+    /**
+     * Recursively flattens the expression as much as possible throughout the entire tree, including the JavaFX nodes
+     * Should be overridden for operation expressions so that in every multiplicative
+     * or additive expression x whose first or last
+     * child c is of the same type as x, the children of c will be added to x, and
+     * c itself will be removed. This method modifies the expression itself.
+     */
+    @Override
+    public void flatten() {
+        flattenChildren();
+        if (_representation != null) {
+        	flattenSelf();
+        }
+    }
+    
+    /**
+     * Helper method for applying the flatten method to the compound expression itself.
+     * If any of the expression's children are the same type as itself,
+     * the child's children will be added to the list of children of this expression and the child removed.
+     * The same happens with the JavaFX node as well if the expression has one
+     */
+    private void flattenSelf() {
+        final List<Expression> newChildren = new ArrayList<>();
 
+        if (_node != null) {
+            _node.getChildren().clear();
+        }
+
+        for (Expression existingChild: _children) {
+            // first cast as an ExpressionImpl to use the getType method since it could be a literal
+            if (((ExpressionImpl) existingChild).getType() == _representation) {
+                //----stuff for expression
+                // Since the child has the same type as this object we know the child is an OperationExpression
+                final List<Expression> childrenToAdd = ((CompoundExpressionImpl) existingChild).getSubexpressions();
+                // update the new children to have this as their parent
+                for (Expression child: childrenToAdd) {
+                    child.setParent(this);
+                }
+                // add all the children to the newChildren list
+                newChildren.addAll(childrenToAdd);
+
+                //----stuff for nodes
+                if (_node != null) {
+                    final List<Node> nodesToAdd = ((Pane) existingChild.getNode()).getChildren();
+                    _node.getChildren().addAll(nodesToAdd);
+                    Labeled toAdd = new Label(_representation);
+                    _node.getChildren().add(toAdd);
+                }
+            }
+            else{
+                //----stuff for expression
+                // if it's not the same type, keep the existing child and add to the new list to preserve order
+                newChildren.add(existingChild);
+
+                //----stuff for nodes
+                if (_node != null) {
+                    _node.getChildren().add(existingChild.getNode());
+                    Labeled toAdd = new Label(_representation);
+                    _node.getChildren().add(toAdd);
+                }
+            }
+        }
+        // replace the children list with the new list
+        _children = newChildren;
+
+        if (_node != null) {
+            //removes last additional operation sign
+            _node.getChildren().remove( _node.getChildren().size()-1, _node.getChildren().size());
+        }
+    }
+
+    /**
+     * Creates a String representation by recursively printing out (using indentation) the
+     * tree represented by this expression, starting at the specified indentation level.
+     *
+     * @param indentLevel the indentation level (number of tabs from the left margin) at which to start
+     * @return a String representation of the expression tree.
+     */
+    @Override
+    public String convertToString(int indentLevel) {
+        final StringBuffer sb = new StringBuffer();
+        Expression.indent(sb, indentLevel);
+        sb.append(_representation + "\n");
+
+        for (Expression child : _children) {
+            sb.append(child.convertToString(indentLevel + 1));
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * Helper method for applying the flatten method to all children of this CompoundExpression
+     */
+    protected void flattenChildren() {
+        for (Expression child : _children) {
+            child.flatten();
+        }
+    }
+
+    /**
+     * Focuses on the subexpression at scene coordinates (x,y)
+     * If no subexpression is clicked, lor no subexpression exists, returns null
+     * @param x scene x coordinate
+     * @param y scene y coordinate
+     * @return the new focused Expression
+     */
+    @Override
+    public Expression focus(double x, double y) {
+
+        for(Expression child : _children) {
+
+            final Bounds boundsInScene = child.getNode().localToScene(child.getNode().getBoundsInLocal());
+
+            final double xMin = boundsInScene.getMinX();
+            final double xMax = boundsInScene.getMaxX();
+            final double yMin = boundsInScene.getMinY();
+            final double yMax = boundsInScene.getMaxY();
+
+            if (((x <= xMax) && (x >= xMin)) && ((y <= yMax) && (y >= yMin))) {
+                ((Pane)child.getNode()).setBorder(RED_BORDER);
+                return child;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Changes color of the text in the expression's JavaFX node to given color
+     * Also recursively changes the color of all children's JavaFX nodes
+     * @param c the given color
+     */
+    @Override
+    public void setColor(Color c) {
+        int index = 0;
+        for(Node child : _node.getChildren()) {
+            if (child instanceof Label) {
+                ((Label) child).setTextFill(c);
+            } else {
+                _children.get(index).setColor(c);
+                index++;
+            }
+        }
+    }
 }
