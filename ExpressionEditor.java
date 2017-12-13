@@ -1,5 +1,4 @@
 import javafx.application.Application;
-import java.util.*;
 import javafx.geometry.Bounds;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -12,6 +11,10 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+/**
+ * CS 210X 2017 B-term (Sinha, Backe) 
+ * GUI where the user can interact with expression
+ */
 public class ExpressionEditor extends Application {
 
 	public static void main (String[] args) {
@@ -37,10 +40,8 @@ public class ExpressionEditor extends Application {
 		}
 
 		public void handle (MouseEvent event) {
-
 			final double x = event.getSceneX();
 			final double y = event.getSceneY();
-
 			if (event.getEventType() == MouseEvent.MOUSE_PRESSED) {
 			} else if (event.getEventType() == MouseEvent.MOUSE_DRAGGED) {
 				// so long as an expression is currently in focus...
@@ -53,20 +54,22 @@ public class ExpressionEditor extends Application {
 					_copyExpression.getNode().setTranslateX(_copyExpression.getNode().getTranslateX() + (x - _lastX));
 					_copyExpression.getNode().setTranslateY(_copyExpression.getNode().getTranslateY() + (y - _lastY));
 					//swaps focused expression accordingly
-					_focusedExpression.swap(x);
+					((ExpressionImpl) _focusedExpression).swap(x);
 				}
 			} else if (event.getEventType() == MouseEvent.MOUSE_RELEASED) {
+				// print out root expression after mouse is released
+				System.out.println(_rootExpression.convertToString(0));
 				//if there is currently no copy, then change focus
 				if (_copyExpression == null) {
 					if (_focusedExpression == null) {
-						_focusedExpression = _rootExpression.focus(x, y);
+						_focusedExpression = ((ExpressionImpl) _rootExpression).focus(x, y);
 					} else {
 						((HBox) _focusedExpression.getNode()).setBorder(Expression.NO_BORDER);
-						_focusedExpression = _focusedExpression.focus(x, y);
+						_focusedExpression = ((ExpressionImpl) _focusedExpression).focus(x, y);
 					}
 				} else {
 					//if there is a copy, set it down (aka set it to null and remove from pane)
-					_focusedExpression.setColor(Color.BLACK);
+					((ExpressionImpl) _focusedExpression).setColor(Color.BLACK);
 					_pane.getChildren().remove(_copyExpression.getNode());
 					_copyExpression = null;
 				}
@@ -82,7 +85,7 @@ public class ExpressionEditor extends Application {
 		private void buildCopy() {
 			_copyExpression = _focusedExpression.deepCopy();
 			//ghosts the focused expression
-			_focusedExpression.setColor(Expression.GHOST_COLOR);
+			((ExpressionImpl) _focusedExpression).setColor(Expression.GHOST_COLOR);
 			_pane.getChildren().add(_copyExpression.getNode());
 
 			Bounds originalBounds = _focusedExpression.getNode().localToScene(_focusedExpression.getNode().getBoundsInLocal());
@@ -111,15 +114,12 @@ public class ExpressionEditor extends Application {
 	@Override
 	public void start (Stage primaryStage) {
 		primaryStage.setTitle("Expression Editor");
-
 		// Add the textbox and Parser button
 		final Pane queryPane = new HBox();
 		final TextField textField = new TextField(EXAMPLE_EXPRESSION);
 		final Button button = new Button("Parse");
 		queryPane.getChildren().add(textField);
-
 		final Pane expressionPane = new Pane();
-
 		// Add the callback to handle when the Parse button is pressed
 		button.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			public void handle (MouseEvent e) {
@@ -132,7 +132,6 @@ public class ExpressionEditor extends Application {
 					expressionPane.getChildren().add(expression.getNode());
 					expression.getNode().setLayoutX(WINDOW_WIDTH/4);
 					expression.getNode().setLayoutY(WINDOW_HEIGHT/2);
-
 					// If the parsed expression is a CompoundExpression, then register some callbacks
 					if (expression instanceof CompoundExpression) {
 						((Pane) expression.getNode()).setBorder(Expression.NO_BORDER);
@@ -151,11 +150,9 @@ public class ExpressionEditor extends Application {
 
 		// Reset the color to black whenever the user presses a key
 		textField.setOnKeyPressed(e -> textField.setStyle("-fx-text-fill: black"));
-
 		final BorderPane root = new BorderPane();
 		root.setTop(queryPane);
 		root.setCenter(expressionPane);
-
 		primaryStage.setScene(new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT));
 		primaryStage.show();
 	}

@@ -75,25 +75,4 @@ interface Expression {
 			sb.append('\t');
 		}
 	}
-	
-	/**
-	 * Switches placement in parent expression with the sibling whose JavaFX node is at the given x coordinate
-	 * @param x the x coordinate
-	 */
-	void swap(double x);
-
-	/**
-	 * Returns focus from the expression to its subexpression whose JavaFX node contains the point (x,y)
-	 * if point (x,y) is on operator or outside the expression, the focus disappears
-	 * @param x the x coordinate
-	 * @param y the y coordinate
-	 * @return focus from the expression to its subexpression whose JavaFX node contains the point (x,y)
-	 */
-	Expression focus(double x, double y);
-
-	/**
-	 * Changes color of the text of the expression's JavaFX node to given color
-	 * @param c the given color
-	 */
-	void setColor(Color c);
 }
